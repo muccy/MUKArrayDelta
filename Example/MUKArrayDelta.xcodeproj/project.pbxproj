@@ -14,6 +14,7 @@
 		06FEEB001B25C5EE0037A6A0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 06FEEAFF1B25C5EE0037A6A0 /* Images.xcassets */; };
 		06FEEB031B25C5EE0037A6A0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 06FEEB011B25C5EE0037A6A0 /* LaunchScreen.xib */; };
 		06FEEB0F1B25C5EE0037A6A0 /* MUKArrayDeltaTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06FEEB0E1B25C5EE0037A6A0 /* MUKArrayDeltaTests.m */; };
+		A5DA1217BE8376E67E082961 /* libPods-MUKArrayDeltaTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CEA8AF0852435736B223149 /* libPods-MUKArrayDeltaTests.a */; };
 		D51C0BCA137B7F528152ECCD /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F5DF0288145426D9D2A9E7AB /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -43,6 +44,9 @@
 		06FEEB0E1B25C5EE0037A6A0 /* MUKArrayDeltaTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MUKArrayDeltaTests.m; sourceTree = "<group>"; };
 		093D09884FC49C263637809A /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		6000E51C5FCA798C17295E6D /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		9CEA8AF0852435736B223149 /* libPods-MUKArrayDeltaTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MUKArrayDeltaTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B183746A5D280ADE79AF7347 /* Pods-MUKArrayDeltaTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MUKArrayDeltaTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MUKArrayDeltaTests/Pods-MUKArrayDeltaTests.debug.xcconfig"; sourceTree = "<group>"; };
+		EBDAAF73F9B3FF9E9A5B80DC /* Pods-MUKArrayDeltaTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MUKArrayDeltaTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-MUKArrayDeltaTests/Pods-MUKArrayDeltaTests.release.xcconfig"; sourceTree = "<group>"; };
 		F5DF0288145426D9D2A9E7AB /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -59,6 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5DA1217BE8376E67E082961 /* libPods-MUKArrayDeltaTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +136,8 @@
 			children = (
 				6000E51C5FCA798C17295E6D /* Pods.debug.xcconfig */,
 				093D09884FC49C263637809A /* Pods.release.xcconfig */,
+				B183746A5D280ADE79AF7347 /* Pods-MUKArrayDeltaTests.debug.xcconfig */,
+				EBDAAF73F9B3FF9E9A5B80DC /* Pods-MUKArrayDeltaTests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -139,6 +146,7 @@
 			isa = PBXGroup;
 			children = (
 				F5DF0288145426D9D2A9E7AB /* libPods.a */,
+				9CEA8AF0852435736B223149 /* libPods-MUKArrayDeltaTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -169,9 +177,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 06FEEB151B25C5EE0037A6A0 /* Build configuration list for PBXNativeTarget "MUKArrayDeltaTests" */;
 			buildPhases = (
+				17004A4A836DE06A63394461 /* Check Pods Manifest.lock */,
 				06FEEB041B25C5EE0037A6A0 /* Sources */,
 				06FEEB051B25C5EE0037A6A0 /* Frameworks */,
 				06FEEB061B25C5EE0037A6A0 /* Resources */,
+				40CCF2E10A5FD6DB05ECF75D /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -254,6 +264,36 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		17004A4A836DE06A63394461 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		40CCF2E10A5FD6DB05ECF75D /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MUKArrayDeltaTests/Pods-MUKArrayDeltaTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		78C8A16C4706F93FF7A6A86E /* Copy Pods Resources */ = {
@@ -422,6 +462,7 @@
 		};
 		06FEEB161B25C5EE0037A6A0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B183746A5D280ADE79AF7347 /* Pods-MUKArrayDeltaTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -441,6 +482,7 @@
 		};
 		06FEEB171B25C5EE0037A6A0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EBDAAF73F9B3FF9E9A5B80DC /* Pods-MUKArrayDeltaTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				FRAMEWORK_SEARCH_PATHS = (

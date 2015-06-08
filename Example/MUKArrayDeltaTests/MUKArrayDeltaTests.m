@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
+#import <MUKArrayDelta/MUKArrayDelta.h>
 
 @interface MUKArrayDeltaTests : XCTestCase
-
 @end
 
 @implementation MUKArrayDeltaTests
@@ -25,16 +25,36 @@
     [super tearDown];
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    XCTAssert(YES, @"Pass");
+- (void)testInitialization {
+    NSArray *const a = @[ @"a" ];
+    NSArray *const b = @[ @"b" ];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b];
+    
+    XCTAssertEqualObjects(a, delta.sourceArray);
+    XCTAssertEqualObjects(b, delta.destinationArray);
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
+- (void)testIdentity {
+    NSArray *const a = @[ @"a" ];
+    NSArray *const b = @[ @"a" ];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b];
+    
+    XCTAssertEqual(delta.insertedIndexes.count, 0);
+    XCTAssertEqual(delta.deletedIndexes.count, 0);
+    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqual(delta.movements.count, 0);
+}
+
+- (void)testInsertion {
+    NSArray *const a = @[ @"a" ];
+    NSArray *const b = @[ @"a", @"b" ];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b];
+    
+    NSIndexSet *const indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, 2)];
+    XCTAssertEqualObjects(delta.insertedIndexes, indexSet);
+    XCTAssertEqual(delta.deletedIndexes.count, 0);
+    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqual(delta.movements.count, 0);
 }
 
 @end

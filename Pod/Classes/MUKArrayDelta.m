@@ -37,6 +37,7 @@
         matchTest = matchTest ?: [[self class] defaultMatchTest];
         
         _insertedIndexes = [[self class] insertedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
+        _deletedIndexes = [[self class] deletedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
     }
 
     return self;
@@ -73,6 +74,32 @@
         
         if (srcIdx == NSNotFound) {
             // No matching source object means it's a new object
+            return YES;
+        }
+        
+        return NO;
+    }]; // indexesOfObjectsPassingTest:
+}
+
++ (NSIndexSet *)deletedIndexesFromSourceArray:(NSArray *)sourceArray toDestinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest
+{
+    return [sourceArray indexesOfObjectsPassingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
+    {
+        NSUInteger const dstIdx = [destinationArray indexOfObjectPassingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
+        {
+            MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
+            
+            if (matchType != MUKArrayDeltaMatchTypeNone) {
+                // Complete or partial match
+                *stop = YES;
+                return YES;
+            }
+            
+            return NO;
+        }]; // indexOfObjectPassingTest:
+        
+        if (dstIdx == NSNotFound) {
+            // No matching destination object means it's a deleted object
             return YES;
         }
         

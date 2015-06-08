@@ -59,4 +59,16 @@
     XCTAssertEqual(delta.movements.count, 0);
 }
 
+- (void)testDeletion {
+    NSArray *const a = @[ @"a", @"b", @"c" ];
+    NSArray *const b = @[ @"a" ];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    
+    NSIndexSet *const indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, 2)];
+    XCTAssertEqual(delta.insertedIndexes.count, 0);
+    XCTAssertEqualObjects(delta.deletedIndexes, indexSet);
+    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqual(delta.movements.count, 0);
+}
+
 @end

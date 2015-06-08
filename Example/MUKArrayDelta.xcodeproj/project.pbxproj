@@ -14,6 +14,7 @@
 		06FEEB001B25C5EE0037A6A0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 06FEEAFF1B25C5EE0037A6A0 /* Images.xcassets */; };
 		06FEEB031B25C5EE0037A6A0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 06FEEB011B25C5EE0037A6A0 /* LaunchScreen.xib */; };
 		06FEEB0F1B25C5EE0037A6A0 /* MUKArrayDeltaTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 06FEEB0E1B25C5EE0037A6A0 /* MUKArrayDeltaTests.m */; };
+		D51C0BCA137B7F528152ECCD /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F5DF0288145426D9D2A9E7AB /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +41,9 @@
 		06FEEB081B25C5EE0037A6A0 /* MUKArrayDeltaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MUKArrayDeltaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		06FEEB0D1B25C5EE0037A6A0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		06FEEB0E1B25C5EE0037A6A0 /* MUKArrayDeltaTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MUKArrayDeltaTests.m; sourceTree = "<group>"; };
+		093D09884FC49C263637809A /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		6000E51C5FCA798C17295E6D /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		F5DF0288145426D9D2A9E7AB /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D51C0BCA137B7F528152ECCD /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,6 +71,8 @@
 				06FEEAF11B25C5EE0037A6A0 /* MUKArrayDelta */,
 				06FEEB0B1B25C5EE0037A6A0 /* MUKArrayDeltaTests */,
 				06FEEAF01B25C5EE0037A6A0 /* Products */,
+				3349062F83C26D4941C29416 /* Pods */,
+				4EC794A897AC4EC4A6EE18F0 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -119,6 +126,23 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		3349062F83C26D4941C29416 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6000E51C5FCA798C17295E6D /* Pods.debug.xcconfig */,
+				093D09884FC49C263637809A /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		4EC794A897AC4EC4A6EE18F0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F5DF0288145426D9D2A9E7AB /* libPods.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -126,9 +150,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 06FEEB121B25C5EE0037A6A0 /* Build configuration list for PBXNativeTarget "MUKArrayDelta" */;
 			buildPhases = (
+				161FCD38AC07A0FBADB8C8D6 /* Check Pods Manifest.lock */,
 				06FEEAEB1B25C5EE0037A6A0 /* Sources */,
 				06FEEAEC1B25C5EE0037A6A0 /* Frameworks */,
 				06FEEAED1B25C5EE0037A6A0 /* Resources */,
+				78C8A16C4706F93FF7A6A86E /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -213,6 +239,39 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		161FCD38AC07A0FBADB8C8D6 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		78C8A16C4706F93FF7A6A86E /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		06FEEAEB1B25C5EE0037A6A0 /* Sources */ = {
@@ -341,6 +400,7 @@
 		};
 		06FEEB131B25C5EE0037A6A0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6000E51C5FCA798C17295E6D /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = MUKArrayDelta/Info.plist;
@@ -351,6 +411,7 @@
 		};
 		06FEEB141B25C5EE0037A6A0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 093D09884FC49C263637809A /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = MUKArrayDelta/Info.plist;
@@ -412,6 +473,7 @@
 				06FEEB141B25C5EE0037A6A0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		06FEEB151B25C5EE0037A6A0 /* Build configuration list for PBXNativeTarget "MUKArrayDeltaTests" */ = {
 			isa = XCConfigurationList;
@@ -420,6 +482,7 @@
 				06FEEB171B25C5EE0037A6A0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

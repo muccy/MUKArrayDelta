@@ -28,7 +28,9 @@
 - (void)testInitialization {
     NSArray *const a = @[ @"a" ];
     NSArray *const b = @[ @"b" ];
-    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b];
+    
+    MUKArrayDelta *delta;
+    XCTAssertNoThrow(delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil]);
     
     XCTAssertEqualObjects(a, delta.sourceArray);
     XCTAssertEqualObjects(b, delta.destinationArray);
@@ -37,7 +39,7 @@
 - (void)testIdentity {
     NSArray *const a = @[ @"a" ];
     NSArray *const b = @[ @"a" ];
-    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
     
     XCTAssertEqual(delta.insertedIndexes.count, 0);
     XCTAssertEqual(delta.deletedIndexes.count, 0);
@@ -47,8 +49,8 @@
 
 - (void)testInsertion {
     NSArray *const a = @[ @"a" ];
-    NSArray *const b = @[ @"a", @"b" ];
-    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b];
+    NSArray *const b = @[ @"a", @"b", @"c" ];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
     
     NSIndexSet *const indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, 2)];
     XCTAssertEqualObjects(delta.insertedIndexes, indexSet);

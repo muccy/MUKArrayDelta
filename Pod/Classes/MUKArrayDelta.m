@@ -26,15 +26,58 @@
 
 @implementation MUKArrayDelta
 
-- (instancetype)initWithSourceArray:(NSArray *)sourceArray destinationArray:(NSArray *)destinationArray
+- (instancetype)initWithSourceArray:(NSArray *)sourceArray destinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest
 {
     self = [super init];
     if (self) {
         _sourceArray = [sourceArray copy];
         _destinationArray = [destinationArray copy];
+        
+        // Ensure a match test
+        matchTest = matchTest ?: [[self class] defaultMatchTest];
+        
+        _insertedIndexes = [[self class] insertedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
     }
 
     return self;
+}
+
+#pragma mark - Private
+
++ (MUKArrayDeltaMatchTest)defaultMatchTest {
+    return ^(id obj1, id obj2) {
+        if ([obj1 isEqual:obj2]) {
+            return MUKArrayDeltaMatchTypeEqual;
+        }
+        
+        return MUKArrayDeltaMatchTypeNone;
+    };
+}
+
++ (NSIndexSet *)insertedIndexesFromSourceArray:(NSArray *)sourceArray toDestinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest
+{
+    return [destinationArray indexesOfObjectsPassingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
+    {
+        NSUInteger const srcIdx = [sourceArray indexOfObjectPassingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
+        {
+            MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
+            
+            if (matchType != MUKArrayDeltaMatchTypeNone) {
+                // Complete or partial match
+                *stop = YES;
+                return YES;
+            }
+            
+            return NO;
+        }]; // indexOfObjectPassingTest:
+        
+        if (srcIdx == NSNotFound) {
+            // No matching source object means it's a new object
+            return YES;
+        }
+        
+        return NO;
+    }]; // indexesOfObjectsPassingTest:
 }
 
 @end

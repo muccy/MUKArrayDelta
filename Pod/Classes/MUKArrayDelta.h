@@ -8,6 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSInteger, MUKArrayDeltaMatchType) {
+    MUKArrayDeltaMatchTypeNone,
+    MUKArrayDeltaMatchTypeChange,
+    MUKArrayDeltaMatchTypeEqual
+};
+
+typedef MUKArrayDeltaMatchType (^MUKArrayDeltaMatchTest)(id object1, id object2);
+
 @interface MUKArrayDelta : NSObject
 @property (nonatomic, copy, readonly) NSArray *sourceArray;
 @property (nonatomic, copy, readonly) NSArray *destinationArray;
@@ -17,7 +25,7 @@
 @property (nonatomic, readonly) NSIndexSet *changedIndexes;
 @property (nonatomic, readonly) NSArray *movements;
 
-- (instancetype)initWithSourceArray:(NSArray *)sourceArray destinationArray:(NSArray *)destinationArray;
+- (instancetype)initWithSourceArray:(NSArray *)sourceArray destinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest;
 @end
 
 

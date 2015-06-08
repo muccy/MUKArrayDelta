@@ -71,4 +71,28 @@
     XCTAssertEqual(delta.movements.count, 0);
 }
 
+- (void)testChanges {
+    NSArray *const a = @[ @"a", @"b", @"c", @"d" ];
+    NSArray *const b = @[ @"a", @"b2", @"c2", @"d" ];
+    
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:^MUKArrayDeltaMatchType(NSString *object1, NSString *object2)
+    {
+        if ([object1 isEqualToString:object2]) {
+            return MUKArrayDeltaMatchTypeEqual;
+        }
+        else if ([[object1 substringToIndex:1] isEqualToString:[object2 substringToIndex:1]])
+        {
+            return MUKArrayDeltaMatchTypeChange;
+        }
+        
+        return MUKArrayDeltaMatchTypeNone;
+    }];
+    
+    NSIndexSet *const indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, 2)];
+    XCTAssertEqual(delta.insertedIndexes.count, 0);
+    XCTAssertEqual(delta.deletedIndexes.count, 0);
+    XCTAssertEqualObjects(delta.changedIndexes, indexSet);
+    XCTAssertEqual(delta.movements.count, 0);
+}
+
 @end

@@ -34,10 +34,19 @@
         _destinationArray = [destinationArray copy];
         
         // Ensure a match test
-        matchTest = matchTest ?: [[self class] defaultMatchTest];
+        BOOL usesDefaultMatchTest = NO;
+        if (!matchTest) {
+            matchTest = [[self class] defaultMatchTest];
+            usesDefaultMatchTest = YES;
+        }
         
         _insertedIndexes = [[self class] insertedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
         _deletedIndexes = [[self class] deletedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
+        
+        if (!usesDefaultMatchTest) {
+            // Default match test can't spot changes
+            _changedIndexes = [[self class] changedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
+        }
     }
 
     return self;
@@ -100,6 +109,31 @@
         
         if (dstIdx == NSNotFound) {
             // No matching destination object means it's a deleted object
+            return YES;
+        }
+        
+        return NO;
+    }]; // indexesOfObjectsPassingTest:
+}
+
++ (NSIndexSet *)changedIndexesFromSourceArray:(NSArray *)sourceArray toDestinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest
+{
+    return [destinationArray indexesOfObjectsPassingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
+    {
+        NSUInteger const srcIdx = [sourceArray indexOfObjectPassingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
+        {
+            MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
+            
+            if (matchType == MUKArrayDeltaMatchTypeChange) {
+                // Partial match
+                *stop = YES;
+                return YES;
+            }
+            
+            return NO;
+        }]; // indexOfObjectPassingTest:
+        
+        if (srcIdx != NSNotFound) {
             return YES;
         }
         

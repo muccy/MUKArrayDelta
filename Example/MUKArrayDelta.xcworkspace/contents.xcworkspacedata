@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Workspace
    version = "1.0">
+   <Group
+      location = "group:../Pod"
+      name = "Pod">
+      <Group
+         location = "group:Classes"
+         name = "Classes">
+         <FileRef
+            location = "group:MUKArrayDelta.h">
+         </FileRef>
+         <FileRef
+            location = "group:MUKArrayDelta.m">
+         </FileRef>
+      </Group>
+   </Group>
    <FileRef
       location = "group:MUKArrayDelta.xcodeproj">
    </FileRef>

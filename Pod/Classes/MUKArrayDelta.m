@@ -41,11 +41,18 @@
         }
         
         _insertedIndexes = [[self class] insertedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
-        _deletedIndexes = [[self class] deletedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
+        
+        {
+            NSArray *const filteredDestinationArray = [[self class] array:destinationArray removingIndexes:_insertedIndexes];
+            _deletedIndexes = [[self class] deletedIndexesFromSourceArray:sourceArray toDestinationArray:filteredDestinationArray matchTest:matchTest];
+        }
         
         if (!usesDefaultMatchTest) {
             // Default match test can't spot changes
-            _changedIndexes = [[self class] changedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
+            NSArray *const filteredSourceArray = [[self class] array:sourceArray removingIndexes:_deletedIndexes];
+            NSArray *const filteredDestinationArray = [[self class] array:destinationArray removingIndexes:_insertedIndexes];
+
+            _changedIndexes = [[self class] changedIndexesFromSourceArray:filteredSourceArray toDestinationArray:filteredDestinationArray matchTest:matchTest];
         }
     }
 
@@ -62,6 +69,17 @@
         
         return MUKArrayDeltaMatchTypeNone;
     };
+}
+
++ (NSArray *)array:(NSArray *)array removingIndexes:(NSIndexSet *)discardedIndexes
+{
+    if (discardedIndexes.count == 0) {
+        return array;
+    }
+    
+    NSMutableIndexSet *const indexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, array.count)];
+    [indexes removeIndexes:discardedIndexes];
+    return [array objectsAtIndexes:indexes];
 }
 
 + (NSIndexSet *)insertedIndexesFromSourceArray:(NSArray *)sourceArray toDestinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest

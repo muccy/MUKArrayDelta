@@ -8,6 +8,37 @@
 
 #import "MUKArrayDelta.h"
 
+@interface MUKArrayDeltaIndexedArray : NSObject
+@property (nonatomic, readonly, copy) NSArray *array;
+@property (nonatomic, readonly, copy) NSIndexSet *indexes;
+@end
+
+@implementation MUKArrayDeltaIndexedArray
+
+- (instancetype)initWithArray:(NSArray *)array indexes:(NSIndexSet *)indexes {
+    self = [super init];
+    if (self) {
+        _array = [array copy];
+        _indexes = [indexes copy];
+    }
+    
+    return self;
+}
+
+- (instancetype)initWithArray:(NSArray *)array {
+    return [self initWithArray:array indexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, array.count)]];
+}
+
+- (instancetype)initWithArray:(NSArray *)array excludingIndexes:(NSIndexSet *)excludedIndexes
+{
+    NSMutableIndexSet *indexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, array.count)];
+    [indexes removeIndexes:excludedIndexes];
+    return [self initWithArray:array indexes:indexes];
+}
+
+@end
+
+
 @implementation MUKArrayDeltaMovement
 
 - (instancetype)initWithSourceIndex:(NSUInteger)sourceIndex destinationIndex:(NSUInteger)destinationIndex
@@ -40,19 +71,27 @@
             usesDefaultMatchTest = YES;
         }
         
-        _insertedIndexes = [[self class] insertedIndexesFromSourceArray:sourceArray toDestinationArray:destinationArray matchTest:matchTest];
-        
+        // Inserted indexes
         {
-            NSArray *const filteredDestinationArray = [[self class] array:destinationArray removingIndexes:_insertedIndexes];
-            _deletedIndexes = [[self class] deletedIndexesFromSourceArray:sourceArray toDestinationArray:filteredDestinationArray matchTest:matchTest];
+            MUKArrayDeltaIndexedArray *const source = [[MUKArrayDeltaIndexedArray alloc] initWithArray:sourceArray];
+            MUKArrayDeltaIndexedArray *const destination = [[MUKArrayDeltaIndexedArray alloc] initWithArray:destinationArray];
+            _insertedIndexes = [[self class] insertedIndexesFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
+        }
+        
+        // Deleted indexes
+        {
+            MUKArrayDeltaIndexedArray *const source = [[MUKArrayDeltaIndexedArray alloc] initWithArray:sourceArray];
+            MUKArrayDeltaIndexedArray *const destination = [[MUKArrayDeltaIndexedArray alloc] initWithArray:destinationArray excludingIndexes:_insertedIndexes];
+            _deletedIndexes = [[self class] deletedIndexesFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
         }
         
         if (!usesDefaultMatchTest) {
             // Default match test can't spot changes
-            NSArray *const filteredSourceArray = [[self class] array:sourceArray removingIndexes:_deletedIndexes];
-            NSArray *const filteredDestinationArray = [[self class] array:destinationArray removingIndexes:_insertedIndexes];
-
-            _changedIndexes = [[self class] changedIndexesFromSourceArray:filteredSourceArray toDestinationArray:filteredDestinationArray matchTest:matchTest];
+           
+            MUKArrayDeltaIndexedArray *const source = [[MUKArrayDeltaIndexedArray alloc] initWithArray:sourceArray excludingIndexes:_deletedIndexes];
+            MUKArrayDeltaIndexedArray *const destination = [[MUKArrayDeltaIndexedArray alloc] initWithArray:destinationArray excludingIndexes:_insertedIndexes];
+            
+            _changedIndexes = [[self class] changedIndexesFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
         }
     }
 
@@ -71,22 +110,11 @@
     };
 }
 
-+ (NSArray *)array:(NSArray *)array removingIndexes:(NSIndexSet *)discardedIndexes
++ (NSIndexSet *)insertedIndexesFromSourceArray:(MUKArrayDeltaIndexedArray *)source toDestinationArray:(MUKArrayDeltaIndexedArray *)destination matchTest:(MUKArrayDeltaMatchTest)matchTest
 {
-    if (discardedIndexes.count == 0) {
-        return array;
-    }
-    
-    NSMutableIndexSet *const indexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, array.count)];
-    [indexes removeIndexes:discardedIndexes];
-    return [array objectsAtIndexes:indexes];
-}
-
-+ (NSIndexSet *)insertedIndexesFromSourceArray:(NSArray *)sourceArray toDestinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest
-{
-    return [destinationArray indexesOfObjectsPassingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
+    return [destination.array indexesOfObjectsAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
     {
-        NSUInteger const srcIdx = [sourceArray indexOfObjectPassingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
+        NSUInteger const srcIdx = [source.array indexOfObjectAtIndexes:source.indexes options:0 passingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
         {
             MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
             
@@ -108,11 +136,11 @@
     }]; // indexesOfObjectsPassingTest:
 }
 
-+ (NSIndexSet *)deletedIndexesFromSourceArray:(NSArray *)sourceArray toDestinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest
++ (NSIndexSet *)deletedIndexesFromSourceArray:(MUKArrayDeltaIndexedArray *)source toDestinationArray:(MUKArrayDeltaIndexedArray *)destination matchTest:(MUKArrayDeltaMatchTest)matchTest
 {
-    return [sourceArray indexesOfObjectsPassingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
+    return [source.array indexesOfObjectsAtIndexes:source.indexes options:0 passingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
     {
-        NSUInteger const dstIdx = [destinationArray indexOfObjectPassingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
+        NSUInteger const dstIdx = [destination.array indexOfObjectAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
         {
             MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
             
@@ -134,11 +162,11 @@
     }]; // indexesOfObjectsPassingTest:
 }
 
-+ (NSIndexSet *)changedIndexesFromSourceArray:(NSArray *)sourceArray toDestinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest
++ (NSIndexSet *)changedIndexesFromSourceArray:(MUKArrayDeltaIndexedArray *)source toDestinationArray:(MUKArrayDeltaIndexedArray *)destination matchTest:(MUKArrayDeltaMatchTest)matchTest
 {
-    return [destinationArray indexesOfObjectsPassingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
+    return [destination.array indexesOfObjectsAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
     {
-        NSUInteger const srcIdx = [sourceArray indexOfObjectPassingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
+        NSUInteger const srcIdx = [source.array indexOfObjectAtIndexes:source.indexes options:0 passingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
         {
             MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
             

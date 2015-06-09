@@ -125,4 +125,18 @@
     } // for
 }
 
+- (void)testComboInsertionDeletion {
+    NSArray *const a = @[ @"a" ];
+    NSArray *const b = @[ @"b", @"c" ];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    
+    NSIndexSet *const insertedIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)];
+    NSIndexSet *const deletedIndexes = [NSIndexSet indexSetWithIndex:0];
+    
+    XCTAssertEqualObjects(delta.insertedIndexes, insertedIndexes);
+    XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
+    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqual(delta.movements.count, 0);
+}
+
 @end

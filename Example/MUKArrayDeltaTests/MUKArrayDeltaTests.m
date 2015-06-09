@@ -36,6 +36,26 @@
     XCTAssertEqualObjects(b, delta.destinationArray);
 }
 
+- (void)testEquality {
+    NSArray *const a = @[ @"a" ];
+    NSArray *const b = @[ @"a", @"b" ];
+    NSArray *const c = @[ @"a", @"b", @"c" ];
+    
+    MUKArrayDelta *const deltaAB = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    MUKArrayDelta *const deltaAC = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:c matchTest:nil];
+    MUKArrayDelta *const deltaBC = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    MUKArrayDelta *const deltaAB2 = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    
+    XCTAssertEqualObjects(deltaAB, deltaAB2);
+    XCTAssert([deltaAB isEqualToArrayDelta:deltaAB2]);
+    
+    XCTAssertFalse([deltaAB isEqual:deltaAC]);
+    XCTAssertFalse([deltaAB isEqualToArrayDelta:deltaAC]);
+    
+    XCTAssertFalse([deltaBC isEqual:deltaAC]);
+    XCTAssertFalse([deltaBC isEqualToArrayDelta:deltaAC]);
+}
+
 - (void)testIdentity {
     NSArray *const a = @[ @"a" ];
     NSArray *const b = @[ @"a" ];

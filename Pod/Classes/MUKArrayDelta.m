@@ -143,6 +143,35 @@
     return self;
 }
 
+- (BOOL)isEqualToArrayDelta:(MUKArrayDelta *)arrayDelta {
+    BOOL const sameSourceArray = (!self.sourceArray && !arrayDelta.sourceArray) || [self.sourceArray isEqualToArray:arrayDelta.sourceArray];
+    BOOL const sameDestinationArray = (!self.destinationArray && !arrayDelta.destinationArray) || [self.destinationArray isEqualToArray:arrayDelta.destinationArray];
+    BOOL const sameInsertedIndexes = (!self.insertedIndexes && !arrayDelta.insertedIndexes) || [self.insertedIndexes isEqualToIndexSet:arrayDelta.insertedIndexes];
+    BOOL const sameDeletedIndexes = (!self.deletedIndexes && !arrayDelta.deletedIndexes) || [self.deletedIndexes isEqualToIndexSet:arrayDelta.deletedIndexes];
+    BOOL const sameChangedIndexes = (!self.changedIndexes && !arrayDelta.changedIndexes) || [self.changedIndexes isEqualToIndexSet:arrayDelta.changedIndexes];
+    BOOL const sameMovements = (!self.movements && !arrayDelta.movements) || [self.movements isEqualToArray:arrayDelta.movements];
+    
+    return sameSourceArray && sameDestinationArray && sameInsertedIndexes && sameDeletedIndexes && sameChangedIndexes && sameMovements;
+}
+
+#pragma mark Overrides
+
+- (BOOL)isEqual:(id)object {
+    if (self == object) {
+        return YES;
+    }
+    
+    if ([object isKindOfClass:[self class]]) {
+        return [self isEqualToArrayDelta:object];
+    }
+    
+    return NO;
+}
+
+- (NSUInteger)hash {
+    return 984236 ^ [self.sourceArray hash] ^ [self.destinationArray hash] ^ [self.insertedIndexes hash] ^ [self.deletedIndexes hash] ^ [self.changedIndexes hash] ^ [self.movements hash];
+}
+
 #pragma mark Private
 
 + (MUKArrayDeltaMatchTest)defaultMatchTest {

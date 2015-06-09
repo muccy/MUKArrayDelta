@@ -26,6 +26,7 @@ typedef MUKArrayDeltaMatchType (^MUKArrayDeltaMatchTest)(id object1, id object2)
 @property (nonatomic, readonly) NSArray *movements;
 
 - (instancetype)initWithSourceArray:(NSArray *)sourceArray destinationArray:(NSArray *)destinationArray matchTest:(MUKArrayDeltaMatchTest)matchTest;
+- (BOOL)isEqualToArrayDelta:(MUKArrayDelta *)arrayDelta;
 @end
 
 

@@ -209,9 +209,9 @@
 
 + (NSIndexSet *)changedIndexesFromSourceArray:(MUKArrayDeltaIndexedArray *)source toDestinationArray:(MUKArrayDeltaIndexedArray *)destination matchTest:(MUKArrayDeltaMatchTest)matchTest
 {
-    return [destination.array indexesOfObjectsAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
+    return [source.array indexesOfObjectsAtIndexes:source.indexes options:0 passingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
     {
-        NSUInteger const srcIdx = [source.array indexOfObjectAtIndexes:source.indexes options:0 passingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
+        NSUInteger const dstIdx = [destination.array indexOfObjectAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
         {
             MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
             
@@ -224,7 +224,7 @@
             return NO;
         }]; // indexOfObjectPassingTest:
         
-        if (srcIdx != NSNotFound) {
+        if (dstIdx != NSNotFound) {
             return YES;
         }
         
@@ -300,8 +300,8 @@
     NSMutableArray *const movements = [NSMutableArray arrayWithCapacity:originalMovements.count];
     
     for (MUKArrayDeltaMovement *movement in originalMovements) {
-        NSUInteger const countOfInsertionsBefore = [insertedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex)];
-        NSUInteger const countOfDeletionsBefore = [deletedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex)];
+        NSUInteger const countOfInsertionsBefore = [insertedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex + 1)];
+        NSUInteger const countOfDeletionsBefore = [deletedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex + 1)];
         NSInteger const normalizedDestinationIndex = movement.destinationIndex - countOfInsertionsBefore + countOfDeletionsBefore;
         
         if (movement.sourceIndex != normalizedDestinationIndex) {

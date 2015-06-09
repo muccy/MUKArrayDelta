@@ -253,7 +253,6 @@
             
             MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
             if (matchType != MUKArrayDeltaMatchTypeNone) {
-                NSLog(@"Match found! %@ @ %i (%i)", dstObj, dstIdx, normalizedDestinationIndex);
                 *stop = YES;
                 return YES;
             }
@@ -264,7 +263,6 @@
         if (dstIdx != NSNotFound) {
             MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:srcIdx destinationIndex:dstIdx];
             [movements addObject:movement];
-            NSLog(@"%@ %i->%i", srcObj, srcIdx, dstIdx);
         }
     }]; // enumerateObjectsUsingBlock:
     

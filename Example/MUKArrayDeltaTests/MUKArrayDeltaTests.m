@@ -263,7 +263,26 @@
     XCTAssert([delta.movements containsObject:m2]);
 }
 
-// InsertionDeletionChangeMovement
+- (void)testComboInsertionDeletionChangeMovement {
+    NSArray *const a = @[ @"a", @"b", @"c", @"d", @"e", @"f" ];
+    NSArray *const b = @[ @"a1", @"c", @"b", @"g", @"e", @"h", @"f1" ];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
+    
+    // 1 -> 2
+    MUKArrayDeltaMovement *const m1 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:1 destinationIndex:2];
+    
+    NSMutableIndexSet *const insertedIndexes = [NSMutableIndexSet indexSetWithIndex:3];
+    [insertedIndexes addIndex:5];
+    NSIndexSet *const deletedIndexes = [NSIndexSet indexSetWithIndex:3];
+    NSMutableIndexSet *const changedIndexes = [NSMutableIndexSet indexSetWithIndex:0];
+    [changedIndexes addIndex:5];
+    
+    XCTAssertEqualObjects(delta.insertedIndexes, insertedIndexes);
+    XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
+    XCTAssertEqualObjects(delta.changedIndexes, changedIndexes);
+    XCTAssertEqual(delta.movements.count, 1);
+    XCTAssert([delta.movements containsObject:m1]);
+}
 
 #pragma mark - Private
 

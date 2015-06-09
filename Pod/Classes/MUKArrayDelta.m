@@ -299,15 +299,36 @@
 {
     NSMutableArray *const movements = [NSMutableArray arrayWithCapacity:originalMovements.count];
     
-    for (MUKArrayDeltaMovement *movement in originalMovements) {
-        NSUInteger const countOfInsertionsBefore = [insertedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex + 1)];
-        NSUInteger const countOfDeletionsBefore = [deletedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex + 1)];
-        NSInteger const normalizedDestinationIndex = movement.destinationIndex - countOfInsertionsBefore + countOfDeletionsBefore;
+    [originalMovements enumerateObjectsUsingBlock:^(MUKArrayDeltaMovement *movement, NSUInteger idx, BOOL *stop)
+    {
+        __block NSInteger normalizedDestinationIndex = movement.destinationIndex;
+        
+        // Check modifications
+        normalizedDestinationIndex -= [insertedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex + 1)];
+        normalizedDestinationIndex += [deletedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex + 1)];
+        
+        // Check overtakes
+        NSMutableIndexSet *const indexSet = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, originalMovements.count)];
+        [indexSet removeIndex:idx];
+        [originalMovements enumerateObjectsAtIndexes:indexSet options:0 usingBlock:^(MUKArrayDeltaMovement *otherMovement, NSUInteger idx, BOOL *stop)
+        {
+            if (otherMovement.destinationIndex < movement.destinationIndex) {
+                if (otherMovement.sourceIndex > movement.sourceIndex) {
+                    normalizedDestinationIndex--;
+                }
+            }
+            else if (otherMovement.destinationIndex > movement.destinationIndex)
+            {
+                if (otherMovement.sourceIndex < movement.sourceIndex) {
+                    normalizedDestinationIndex++;
+                }
+            }
+        }]; // enumerateObjectsAtIndexes:
         
         if (movement.sourceIndex != normalizedDestinationIndex) {
             [movements addObject:movement];
         }
-    } // for
+    }]; // enumerateObjectsUsingBlock:
     
     return [movements copy];
 }

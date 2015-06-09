@@ -175,6 +175,24 @@
     XCTAssertEqual(delta.movements.count, 0);
 }
 
+- (void)testComboDeletionMovement {
+    NSArray *const a = @[ @"a", @"b", @"c", @"d" ];
+    NSArray *const b = @[ @"d", @"c" ];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
+    
+    // 3 -> 0
+    MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:3 destinationIndex:0];
+    
+    // Removed 0 and 1 (which moves c to 2)
+    NSMutableIndexSet *const deletedIndexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)];
+    
+    XCTAssertEqual(delta.insertedIndexes.count, 0);
+    XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
+    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqual(delta.movements.count, 1);
+    XCTAssert([delta.movements containsObject:movement]);
+}
+
 #pragma mark - Private
 
 + (MUKArrayDeltaMatchTest)stringPrefixMatchTest {

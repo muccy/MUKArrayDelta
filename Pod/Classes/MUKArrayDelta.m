@@ -52,6 +52,28 @@
     return self;
 }
 
+- (BOOL)isEqualToArrayDeltaMovement:(MUKArrayDeltaMovement *)movement {
+    return self.sourceIndex == movement.sourceIndex && self.destinationIndex == movement.destinationIndex;
+}
+
+#pragma mark - Overrides
+
+- (BOOL)isEqual:(id)object {
+    if (self == object) {
+        return YES;
+    }
+    
+    if ([object isKindOfClass:[self class]]) {
+        return [self isEqualToArrayDeltaMovement:object];
+    }
+    
+    return NO;
+}
+
+- (NSUInteger)hash {
+    return 67829043 ^ self.sourceIndex ^ self.destinationIndex;
+}
+
 @end
 
 
@@ -85,13 +107,19 @@
             _deletedIndexes = [[self class] deletedIndexesFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
         }
         
+        // Changed indexes (default match test can't spot changes)
         if (!usesDefaultMatchTest) {
-            // Default match test can't spot changes
-           
             MUKArrayDeltaIndexedArray *const source = [[MUKArrayDeltaIndexedArray alloc] initWithArray:sourceArray excludingIndexes:_deletedIndexes];
             MUKArrayDeltaIndexedArray *const destination = [[MUKArrayDeltaIndexedArray alloc] initWithArray:destinationArray excludingIndexes:_insertedIndexes];
             
             _changedIndexes = [[self class] changedIndexesFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
+        }
+        
+        // Movements
+        {
+            MUKArrayDeltaIndexedArray *const source = [[MUKArrayDeltaIndexedArray alloc] initWithArray:sourceArray excludingIndexes:_deletedIndexes];
+            MUKArrayDeltaIndexedArray *const destination = [[MUKArrayDeltaIndexedArray alloc] initWithArray:destinationArray excludingIndexes:_insertedIndexes];
+            _movements = [[self class] movementsFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
         }
     }
 
@@ -185,6 +213,62 @@
         
         return NO;
     }]; // indexesOfObjectsPassingTest:
+}
+
++ (NSArray *)movementsFromSourceArray:(MUKArrayDeltaIndexedArray *)source toDestinationArray:(MUKArrayDeltaIndexedArray *)destination matchTest:(MUKArrayDeltaMatchTest)matchTest
+{
+    NSMutableArray *const movements = [NSMutableArray array];
+    
+    NSUInteger const (^normalizeDestinationIndex)(NSUInteger) = ^(NSUInteger idx) {
+        NSUInteger normalizedIndex = idx;
+        
+        for (MUKArrayDeltaMovement *const movement in movements) {
+            if (movement.sourceIndex < idx && movement.destinationIndex > idx) {
+                normalizedIndex++;
+            }
+            else if (movement.sourceIndex > idx && movement.destinationIndex < idx)
+            {
+                normalizedIndex--;
+            }
+        } // for
+        
+        return normalizedIndex;
+    };
+    
+    [source.array enumerateObjectsAtIndexes:source.indexes options:0 usingBlock:^(id srcObj, NSUInteger srcIdx, BOOL *stop)
+    {
+        NSUInteger const dstIdx = [destination.array indexOfObjectAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
+        {
+            if (srcIdx == dstIdx) {
+                // Not a movement
+                return NO;
+            }
+            
+            // Calculate temporary destination index after these movements
+            NSUInteger const normalizedDestinationIndex = normalizeDestinationIndex(dstIdx);
+            if (srcIdx == normalizedDestinationIndex) {
+                // Not a movement
+                return NO;
+            }
+            
+            MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
+            if (matchType != MUKArrayDeltaMatchTypeNone) {
+                NSLog(@"Match found! %@ @ %i (%i)", dstObj, dstIdx, normalizedDestinationIndex);
+                *stop = YES;
+                return YES;
+            }
+            
+            return NO;
+        }]; // indexOfObjectPassingTest:
+        
+        if (dstIdx != NSNotFound) {
+            MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:srcIdx destinationIndex:dstIdx];
+            [movements addObject:movement];
+            NSLog(@"%@ %i->%i", srcObj, srcIdx, dstIdx);
+        }
+    }]; // enumerateObjectsUsingBlock:
+    
+    return [movements copy];
 }
 
 @end

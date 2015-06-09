@@ -95,4 +95,34 @@
     XCTAssertEqual(delta.movements.count, 0);
 }
 
+- (void)testMovementEquality {
+    MUKArrayDeltaMovement *const m1 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:0 destinationIndex:3];
+    MUKArrayDeltaMovement *const m2 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:0 destinationIndex:3];
+    XCTAssertEqualObjects(m1, m2);
+    XCTAssert([m1 isEqualToArrayDeltaMovement:m2]);
+    
+    MUKArrayDeltaMovement *const m3 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:2 destinationIndex:3];
+    XCTAssertFalse([m1 isEqual:m3]);
+    XCTAssertFalse([m1 isEqualToArrayDeltaMovement:m3]);
+}
+
+- (void)testMovements {
+    NSArray *const a = @[ @"a", @"b", @"c", @"d", @"e" ];
+    NSArray *const b = @[ @"c", @"b", @"d", @"e", @"a" ];
+    
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    
+    // 0 -> 4, 2 -> 0
+    NSArray *const movements = @[ [[MUKArrayDeltaMovement alloc] initWithSourceIndex:0 destinationIndex:4], [[MUKArrayDeltaMovement alloc] initWithSourceIndex:2 destinationIndex:0] ];
+    
+    XCTAssertEqual(delta.insertedIndexes.count, 0);
+    XCTAssertEqual(delta.deletedIndexes.count, 0);
+    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqual(delta.movements.count, movements.count);
+    
+    for (MUKArrayDeltaMovement *const movement in movements) {
+        XCTAssert([delta.movements containsObject:movement]);
+    } // for
+}
+
 @end

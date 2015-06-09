@@ -298,35 +298,25 @@
 + (NSArray *)movementsByCleaningMovements:(NSArray *)originalMovements fromInsertedIndexes:(NSIndexSet *)insertedIndexes deletedIndexes:(NSIndexSet *)deletedIndexes
 {
     NSMutableArray *const movements = [NSMutableArray arrayWithCapacity:originalMovements.count];
+    NSMutableArray *const normalizedMovements = [NSMutableArray arrayWithCapacity:originalMovements.count];
     
     [originalMovements enumerateObjectsUsingBlock:^(MUKArrayDeltaMovement *movement, NSUInteger idx, BOOL *stop)
     {
-        __block NSInteger normalizedDestinationIndex = movement.destinationIndex;
+        NSInteger normalizedSourceIndex = movement.sourceIndex;
+        NSInteger normalizedDestinationIndex = movement.destinationIndex;
         
         // Check modifications
+        normalizedSourceIndex -= [deletedIndexes countOfIndexesInRange:NSMakeRange(0, movement.sourceIndex + 1)];
         normalizedDestinationIndex -= [insertedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex + 1)];
-        normalizedDestinationIndex += [deletedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex + 1)];
-        
-        // Check overtakes
-        NSMutableIndexSet *const indexSet = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, originalMovements.count)];
-        [indexSet removeIndex:idx];
-        [originalMovements enumerateObjectsAtIndexes:indexSet options:0 usingBlock:^(MUKArrayDeltaMovement *otherMovement, NSUInteger idx, BOOL *stop)
-        {
-            if (otherMovement.destinationIndex < movement.destinationIndex) {
-                if (otherMovement.sourceIndex > movement.sourceIndex) {
-                    normalizedDestinationIndex--;
-                }
-            }
-            else if (otherMovement.destinationIndex > movement.destinationIndex)
+  
+        if (normalizedSourceIndex != normalizedDestinationIndex) {
+            MUKArrayDeltaMovement *const normalizedMovement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:normalizedSourceIndex destinationIndex:normalizedDestinationIndex];
+            
+            if (![normalizedMovements containsObject:[normalizedMovement inverseMovement]])
             {
-                if (otherMovement.sourceIndex < movement.sourceIndex) {
-                    normalizedDestinationIndex++;
-                }
+                [movements addObject:movement];
+                [normalizedMovements addObject:normalizedMovement];
             }
-        }]; // enumerateObjectsAtIndexes:
-        
-        if (movement.sourceIndex != normalizedDestinationIndex) {
-            [movements addObject:movement];
         }
     }]; // enumerateObjectsUsingBlock:
     

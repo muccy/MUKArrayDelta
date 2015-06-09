@@ -180,10 +180,10 @@
     NSArray *const b = @[ @"d", @"c" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
-    // 3 -> 0
-    MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:3 destinationIndex:0];
+    // 2 -> 1
+    MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:2 destinationIndex:1];
     
-    // Removed 0 and 1 (which moves c to 2)
+    // Removed 0 and 1
     NSMutableIndexSet *const deletedIndexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)];
     
     XCTAssertEqual(delta.insertedIndexes.count, 0);
@@ -207,6 +207,21 @@
     XCTAssertEqualObjects(delta.changedIndexes, changedIndexes);
     XCTAssertEqual(delta.movements.count, 1);
     XCTAssert([delta.movements containsObject:movement]);
+}
+
+- (void)testComboInsertionDeletionChange {
+    NSArray *const a = @[ @"a", @"b", @"c" ];
+    NSArray *const b = @[ @"c1", @"d" ];
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
+    
+    NSIndexSet *const insertedIndexes = [NSIndexSet indexSetWithIndex:1];
+    NSIndexSet *const deletedIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)];
+    NSIndexSet *const changedIndexes = [NSIndexSet indexSetWithIndex:2];
+    
+    XCTAssertEqualObjects(delta.insertedIndexes, insertedIndexes);
+    XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
+    XCTAssertEqualObjects(delta.changedIndexes, changedIndexes);
+    XCTAssertEqual(delta.movements.count, 0);
 }
 
 #pragma mark - Private

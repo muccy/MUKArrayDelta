@@ -33,5 +33,6 @@ typedef MUKArrayDeltaMatchType (^MUKArrayDeltaMatchTest)(id object1, id object2)
 @property (nonatomic, readonly) NSUInteger sourceIndex;
 @property (nonatomic, readonly) NSUInteger destinationIndex;
 - (instancetype)initWithSourceIndex:(NSUInteger)sourceIndex destinationIndex:(NSUInteger)destinationIndex;
+- (instancetype)inverseMovement;
 - (BOOL)isEqualToArrayDeltaMovement:(MUKArrayDeltaMovement *)movement;
 @end

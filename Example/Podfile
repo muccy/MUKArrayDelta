@@ -1,4 +1,0 @@
-pod "MUKArrayDelta", :path => "../"
-
-target "MUKArrayDeltaTests", :exclusive => false do
-end

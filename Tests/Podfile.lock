@@ -9,6 +9,6 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  MUKArrayDelta: 28bc58113f367194c0b0be81bfe99405bf8c3ea7
+  MUKArrayDelta: f1f5e43da4fe6fd2032f04bc3f49498ef4fc2f9c
 
 COCOAPODS: 0.37.2

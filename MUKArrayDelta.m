@@ -1,11 +1,3 @@
-//
-//  MUKArrayDelta.m
-//  
-//
-//  Created by Marco on 08/06/15.
-//
-//
-
 #import "MUKArrayDelta.h"
 
 @interface MUKArrayDeltaIndexedArray : NSObject

@@ -72,7 +72,7 @@
 }
 
 - (NSString *)description {
-    return [[super description] stringByAppendingFormat:@" (%ld -> %ld)", self.sourceIndex, self.destinationIndex];
+    return [[super description] stringByAppendingFormat:@" (%lu -> %lu)", (unsigned long)self.sourceIndex, (unsigned long)self.destinationIndex];
 }
 
 @end

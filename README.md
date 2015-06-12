@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/cocoapods/l/MUKArrayDelta.svg?style=flat)](http://cocoadocs.org/docsets/MUKArrayDelta)
 [![Platform](https://img.shields.io/cocoapods/p/MUKArrayDelta.svg?style=flat)](http://cocoadocs.org/docsets/MUKArrayDelta)
 
-`MUKArrayDelta` is made to spot differences between two arrays: you feed them and you will get inserted indexes, deleted indexes, changed indexes and movements.
+`MUKArrayDelta` is made to spot differences between two arrays: you feed them and you will get inserted indexes, deleted indexes, changes and movements.
 
 ## Requirements
 

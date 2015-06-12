@@ -45,13 +45,19 @@ typedef MUKArrayDeltaMatchType (^MUKArrayDeltaMatchTest)(id object1, id object2)
  */
 @property (nonatomic, readonly) NSIndexSet *deletedIndexes;
 /**
- Changed indexes. Indexes refer to sourceArray.
+ Set of MUKArrayDeltaMatch objects which represent equal matches
  */
-@property (nonatomic, readonly) NSIndexSet *changedIndexes;
+@property (nonatomic, readonly) NSSet *equalMatches;
 /**
- Array of MUKArrayDeltaMovement objects
+ Set of MUKArrayDeltaMatch objects which represent partial matches
  */
-@property (nonatomic, readonly) NSArray *movements;
+@property (nonatomic, readonly) NSSet *changes;
+/**
+ Set of MUKArrayDeltaMatch objects which represent movements.
+ A match contained in movements set is contained inside equalMatches or
+ changes set, too.
+ */
+@property (nonatomic, readonly) NSSet *movements;
 /**
  Designated initializer.
  @param sourceArray         Source array
@@ -68,27 +74,31 @@ typedef MUKArrayDeltaMatchType (^MUKArrayDeltaMatchTest)(id object1, id object2)
 @end
 
 /**
- A movement from source array to destination array
+ A match between two items in source array and destination array
  */
-@interface MUKArrayDeltaMovement : NSObject
+@interface MUKArrayDeltaMatch : NSObject
 /**
- Index of moved item in source array
+ Index of matched item in source array
  */
 @property (nonatomic, readonly) NSUInteger sourceIndex;
 /**
- Index of moved item in destination array
+ Index of matched item in destination array
  */
 @property (nonatomic, readonly) NSUInteger destinationIndex;
 /**
+ Type of match
+ */
+@property (nonatomic, readonly) MUKArrayDeltaMatchType type;
+/**
  Designated initializer
  */
-- (instancetype)initWithSourceIndex:(NSUInteger)sourceIndex destinationIndex:(NSUInteger)destinationIndex;
+- (instancetype)initWithType:(MUKArrayDeltaMatchType)type sourceIndex:(NSUInteger)sourceIndex destinationIndex:(NSUInteger)destinationIndex;
 /**
- @returns A movement with flipped sourceIndex and destinationIndex
+ @returns A match with flipped sourceIndex and destinationIndex
  */
-- (instancetype)inverseMovement;
+- (instancetype)inverse;
 /**
  @returns YES when two movements are equal
  */
-- (BOOL)isEqualToArrayDeltaMovement:(MUKArrayDeltaMovement *)movement;
+- (BOOL)isEqualToArrayDeltaMatch:(MUKArrayDeltaMatch *)match;
 @end

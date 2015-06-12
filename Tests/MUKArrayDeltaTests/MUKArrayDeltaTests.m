@@ -127,7 +127,7 @@
     
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
     
-    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 4), EqualMatch(1, 1), EqualMatch(2, 0), EqualMatch(3, 2), EqualMatch(4, 0), nil];
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 4), EqualMatch(1, 1), EqualMatch(2, 0), EqualMatch(3, 2), EqualMatch(4, 3), nil];
     
     // 0 -> 4, 2 -> 0
     NSSet *const movements = [NSSet setWithObjects:EqualMatch(0, 4), EqualMatch(2, 0), nil];
@@ -307,7 +307,7 @@
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
     NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(1, 2), EqualMatch(2, 1), EqualMatch(4, 4), nil];
-    NSSet *const changes = [NSSet setWithObjects:ChangeMatch(5, 6), nil];
+    NSSet *const changes = [NSSet setWithObjects:ChangeMatch(0, 0), ChangeMatch(5, 6), nil];
     
     // 1 -> 2
     NSSet *const movements = [NSSet setWithObjects:EqualMatch(1, 2), nil];

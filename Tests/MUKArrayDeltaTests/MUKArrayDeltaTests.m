@@ -15,16 +15,6 @@
 
 @implementation MUKArrayDeltaTests
 
-- (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
-
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
-
 - (void)testInitialization {
     NSArray *const a = @[ @"a" ];
     NSArray *const b = @[ @"b" ];
@@ -61,9 +51,12 @@
     NSArray *const b = @[ @"a" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 0), nil];
+    
     XCTAssertEqual(delta.insertedIndexes.count, 0);
     XCTAssertEqual(delta.deletedIndexes.count, 0);
-    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqual(delta.changes.count, 0);
     XCTAssertEqual(delta.movements.count, 0);
 }
 
@@ -72,10 +65,13 @@
     NSArray *const b = @[ @"a", @"b", @"c" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 0), nil];
     NSIndexSet *const indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, 2)];
+    
     XCTAssertEqualObjects(delta.insertedIndexes, indexSet);
     XCTAssertEqual(delta.deletedIndexes.count, 0);
-    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqual(delta.changes.count, 0);
     XCTAssertEqual(delta.movements.count, 0);
 }
 
@@ -84,10 +80,13 @@
     NSArray *const b = @[ @"a" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 0), nil];
     NSIndexSet *const indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, 2)];
+    
     XCTAssertEqual(delta.insertedIndexes.count, 0);
     XCTAssertEqualObjects(delta.deletedIndexes, indexSet);
-    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqual(delta.changes.count, 0);
     XCTAssertEqual(delta.movements.count, 0);
 }
 
@@ -97,22 +96,29 @@
     
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
-    NSIndexSet *const indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, 2)];
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 0), EqualMatch(3, 3), nil];
+    NSSet *const changeMatches = [NSSet setWithObjects:ChangeMatch(1, 1), ChangeMatch(2, 2), nil];
+    
     XCTAssertEqual(delta.insertedIndexes.count, 0);
     XCTAssertEqual(delta.deletedIndexes.count, 0);
-    XCTAssertEqualObjects(delta.changedIndexes, indexSet);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqualObjects(delta.changes, changeMatches);
     XCTAssertEqual(delta.movements.count, 0);
 }
 
-- (void)testMovementEquality {
-    MUKArrayDeltaMovement *const m1 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:0 destinationIndex:3];
-    MUKArrayDeltaMovement *const m2 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:0 destinationIndex:3];
+- (void)testMatchEquality {
+    MUKArrayDeltaMatch *const m1 = [[MUKArrayDeltaMatch alloc] initWithType:MUKArrayDeltaMatchTypeEqual sourceIndex:0 destinationIndex:3];
+    MUKArrayDeltaMatch *const m2 = [[MUKArrayDeltaMatch alloc] initWithType:MUKArrayDeltaMatchTypeEqual sourceIndex:0 destinationIndex:3];
     XCTAssertEqualObjects(m1, m2);
-    XCTAssert([m1 isEqualToArrayDeltaMovement:m2]);
+    XCTAssert([m1 isEqualToArrayDeltaMatch:m2]);
     
-    MUKArrayDeltaMovement *const m3 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:2 destinationIndex:3];
+    MUKArrayDeltaMatch *const m3 = [[MUKArrayDeltaMatch alloc] initWithType:MUKArrayDeltaMatchTypeChange sourceIndex:0 destinationIndex:3];
     XCTAssertFalse([m1 isEqual:m3]);
-    XCTAssertFalse([m1 isEqualToArrayDeltaMovement:m3]);
+    XCTAssertFalse([m1 isEqualToArrayDeltaMatch:m3]);
+    
+    MUKArrayDeltaMatch *const m4 = [[MUKArrayDeltaMatch alloc] initWithType:MUKArrayDeltaMatchTypeEqual sourceIndex:1 destinationIndex:3];
+    XCTAssertFalse([m1 isEqual:m4]);
+    XCTAssertFalse([m1 isEqualToArrayDeltaMatch:m4]);
 }
 
 - (void)testMovements {
@@ -121,17 +127,16 @@
     
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 4), EqualMatch(1, 1), EqualMatch(2, 0), EqualMatch(3, 2), EqualMatch(4, 3), nil];
+    
     // 0 -> 4, 2 -> 0
-    NSArray *const movements = @[ [[MUKArrayDeltaMovement alloc] initWithSourceIndex:0 destinationIndex:4], [[MUKArrayDeltaMovement alloc] initWithSourceIndex:2 destinationIndex:0] ];
+    NSSet *const movements = [NSSet setWithObjects:EqualMatch(0, 4), EqualMatch(2, 0), nil];
     
     XCTAssertEqual(delta.insertedIndexes.count, 0);
     XCTAssertEqual(delta.deletedIndexes.count, 0);
-    XCTAssertEqual(delta.changedIndexes.count, 0);
-    XCTAssertEqual(delta.movements.count, movements.count);
-    
-    for (MUKArrayDeltaMovement *const movement in movements) {
-        XCTAssert([delta.movements containsObject:movement]);
-    } // for
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqual(delta.changes.count, 0);
+    XCTAssertEqualObjects(delta.movements, movements);
 }
 
 - (void)testComboInsertionDeletion {
@@ -144,7 +149,8 @@
     
     XCTAssertEqualObjects(delta.insertedIndexes, insertedIndexes);
     XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
-    XCTAssertEqual(delta.changedIndexes.count, 0);
+    XCTAssertEqual(delta.equalMatches.count, 0);
+    XCTAssertEqual(delta.changes.count, 0);
     XCTAssertEqual(delta.movements.count, 0);
 }
 
@@ -154,11 +160,12 @@
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
     NSIndexSet *const insertedIndexes = [NSIndexSet indexSetWithIndex:1];
-    NSIndexSet *const changedIndexes = [NSIndexSet indexSetWithIndex:0];
+    NSSet *const changes = [NSSet setWithObjects:ChangeMatch(0, 0), nil];
     
     XCTAssertEqualObjects(delta.insertedIndexes, insertedIndexes);
     XCTAssertEqual(delta.deletedIndexes.count, 0);
-    XCTAssertEqualObjects(delta.changedIndexes, changedIndexes);
+    XCTAssertEqual(delta.equalMatches.count, 0);
+    XCTAssertEqualObjects(delta.changes, changes);
     XCTAssertEqual(delta.movements.count, 0);
 }
 
@@ -167,8 +174,10 @@
     NSArray *const b = @[ @"b", @"a", @"d", @"c", @"e" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 1), EqualMatch(1, 0), EqualMatch(2, 3), nil];
+    
     // 0 -> 1
-    MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:0 destinationIndex:1];
+    NSSet *const movements = [NSSet setWithObjects:EqualMatch(0, 1), nil];
     
     // Inserted at index 2 (which moves c to 3) and 4
     NSMutableIndexSet *const insertedIndexes = [NSMutableIndexSet indexSetWithIndex:2];
@@ -176,9 +185,9 @@
     
     XCTAssertEqualObjects(delta.insertedIndexes, insertedIndexes);
     XCTAssertEqual(delta.deletedIndexes.count, 0);
-    XCTAssertEqual(delta.changedIndexes.count, 0);
-    XCTAssertEqual(delta.movements.count, 1);
-    XCTAssert([delta.movements containsObject:movement]);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqual(delta.changes.count, 0);
+    XCTAssertEqualObjects(delta.movements, movements);
 }
 
 - (void)testComboDeletionChange {
@@ -187,11 +196,12 @@
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
     NSIndexSet *const deletedIndexes = [NSIndexSet indexSetWithIndex:0];
-    NSIndexSet *const changedIndexes = [NSIndexSet indexSetWithIndex:1];
+    NSSet *const changes = [NSSet setWithObjects:ChangeMatch(1, 0), nil];
     
     XCTAssertEqual(delta.insertedIndexes.count, 0);
     XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
-    XCTAssertEqualObjects(delta.changedIndexes, changedIndexes);
+    XCTAssertEqual(delta.equalMatches.count, 0);
+    XCTAssertEqualObjects(delta.changes, changes);
     XCTAssertEqual(delta.movements.count, 0);
 }
 
@@ -200,17 +210,19 @@
     NSArray *const b = @[ @"d", @"c" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(2, 1), EqualMatch(3, 0), nil];
+    
     // 2 -> 1
-    MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:2 destinationIndex:1];
+    NSSet *const movements = [NSSet setWithObjects:EqualMatch(2, 1), nil];
     
     // Removed 0 and 1
     NSMutableIndexSet *const deletedIndexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)];
     
     XCTAssertEqual(delta.insertedIndexes.count, 0);
     XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
-    XCTAssertEqual(delta.changedIndexes.count, 0);
-    XCTAssertEqual(delta.movements.count, 1);
-    XCTAssert([delta.movements containsObject:movement]);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqual(delta.changes.count, 0);
+    XCTAssertEqualObjects(delta.movements, movements);
 }
 
 - (void)testComboChangeMovement {
@@ -218,15 +230,17 @@
     NSArray *const b = @[ @"a", @"c1", @"b1", @"d1" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 0), nil];
+    NSSet *const changes = [NSSet setWithObjects:ChangeMatch(1, 2), ChangeMatch(2, 1), ChangeMatch(3, 3), nil];
+    
     // 1 -> 2
-    MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:1 destinationIndex:2];
-    NSIndexSet *const changedIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, 3)];
+    NSSet *const movements = [NSSet setWithObjects:ChangeMatch(1, 2), nil];
     
     XCTAssertEqual(delta.insertedIndexes.count, 0);
     XCTAssertEqual(delta.deletedIndexes.count, 0);
-    XCTAssertEqualObjects(delta.changedIndexes, changedIndexes);
-    XCTAssertEqual(delta.movements.count, 1);
-    XCTAssert([delta.movements containsObject:movement]);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqualObjects(delta.changes, changes);
+    XCTAssertEqualObjects(delta.movements, movements);
 }
 
 - (void)testComboInsertionDeletionChange {
@@ -236,11 +250,12 @@
     
     NSIndexSet *const insertedIndexes = [NSIndexSet indexSetWithIndex:1];
     NSIndexSet *const deletedIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)];
-    NSIndexSet *const changedIndexes = [NSIndexSet indexSetWithIndex:2];
+    NSSet *const changes = [NSSet setWithObjects:ChangeMatch(2, 0), nil];
     
     XCTAssertEqualObjects(delta.insertedIndexes, insertedIndexes);
     XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
-    XCTAssertEqualObjects(delta.changedIndexes, changedIndexes);
+    XCTAssertEqual(delta.equalMatches.count, 0);
+    XCTAssertEqualObjects(delta.changes, changes);
     XCTAssertEqual(delta.movements.count, 0);
 }
 
@@ -249,17 +264,19 @@
     NSArray *const b = @[ @"a", @"c", @"b", @"e" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 0), EqualMatch(1, 2), EqualMatch(2, 1), nil];
+    
     // 1 -> 2
-    MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:1 destinationIndex:2];
+    NSSet *const movements = [NSSet setWithObjects:EqualMatch(1, 2), nil];
     
     NSIndexSet *const insertedIndexes = [NSIndexSet indexSetWithIndex:3];
     NSIndexSet *const deletedIndexes = [NSIndexSet indexSetWithIndex:3];
     
     XCTAssertEqualObjects(delta.insertedIndexes, insertedIndexes);
     XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
-    XCTAssertEqual(delta.changedIndexes.count, 0);
-    XCTAssertEqual(delta.movements.count, 1);
-    XCTAssert([delta.movements containsObject:movement]);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqual(delta.changes.count, 0);
+    XCTAssertEqualObjects(delta.movements, movements);
 }
 
 - (void)testComboDeletionChangeMovement {
@@ -267,9 +284,11 @@
     NSArray *const b = @[ @"a1", @"c", @"b", @"f1", @"e" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(1, 2), EqualMatch(2, 1), EqualMatch(4, 4), nil];
+    NSSet *const changes = [NSSet setWithObjects:ChangeMatch(0, 0), ChangeMatch(5, 3), nil];
+    
     // 1 -> 2, 5 -> 3
-    MUKArrayDeltaMovement *const m1 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:1 destinationIndex:2];
-    MUKArrayDeltaMovement *const m2 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:5 destinationIndex:3];
+    NSSet *const movements = [NSSet setWithObjects:EqualMatch(1, 2), ChangeMatch(5, 3), nil];
     
     NSIndexSet *const deletedIndexes = [NSIndexSet indexSetWithIndex:3];
     NSMutableIndexSet *const changedIndexes = [NSMutableIndexSet indexSetWithIndex:0];
@@ -277,10 +296,9 @@
     
     XCTAssertEqual(delta.insertedIndexes.count, 0);
     XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
-    XCTAssertEqualObjects(delta.changedIndexes, changedIndexes);
-    XCTAssertEqual(delta.movements.count, 2);
-    XCTAssert([delta.movements containsObject:m1]);
-    XCTAssert([delta.movements containsObject:m2]);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqualObjects(delta.changes, changes);
+    XCTAssertEqualObjects(delta.movements, movements);
 }
 
 - (void)testComboInsertionDeletionChangeMovement {
@@ -288,8 +306,11 @@
     NSArray *const b = @[ @"a1", @"c", @"b", @"g", @"e", @"h", @"f1" ];
     MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:[[self class] stringPrefixMatchTest]];
     
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(1, 2), EqualMatch(2, 1), EqualMatch(4, 4), nil];
+    NSSet *const changes = [NSSet setWithObjects:ChangeMatch(0, 0), ChangeMatch(5, 6), nil];
+    
     // 1 -> 2
-    MUKArrayDeltaMovement *const m1 = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:1 destinationIndex:2];
+    NSSet *const movements = [NSSet setWithObjects:EqualMatch(1, 2), nil];
     
     NSMutableIndexSet *const insertedIndexes = [NSMutableIndexSet indexSetWithIndex:3];
     [insertedIndexes addIndex:5];
@@ -299,9 +320,9 @@
     
     XCTAssertEqualObjects(delta.insertedIndexes, insertedIndexes);
     XCTAssertEqualObjects(delta.deletedIndexes, deletedIndexes);
-    XCTAssertEqualObjects(delta.changedIndexes, changedIndexes);
-    XCTAssertEqual(delta.movements.count, 1);
-    XCTAssert([delta.movements containsObject:m1]);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqualObjects(delta.changes, changes);
+    XCTAssertEqualObjects(delta.movements, movements);
 }
 
 #pragma mark - Private
@@ -319,6 +340,14 @@
         
         return MUKArrayDeltaMatchTypeNone;
     };
+}
+
+static inline MUKArrayDeltaMatch * EqualMatch(NSUInteger src, NSUInteger dst) {
+    return [[MUKArrayDeltaMatch alloc] initWithType:MUKArrayDeltaMatchTypeEqual sourceIndex:src destinationIndex:dst];
+}
+
+static inline MUKArrayDeltaMatch * ChangeMatch(NSUInteger src, NSUInteger dst) {
+    return [[MUKArrayDeltaMatch alloc] initWithType:MUKArrayDeltaMatchTypeChange sourceIndex:src destinationIndex:dst];
 }
 
 @end

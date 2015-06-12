@@ -1,43 +1,12 @@
 #import "MUKArrayDelta.h"
 
-@interface MUKArrayDeltaIndexedArray : NSObject
-@property (nonatomic, readonly, copy) NSArray *array;
-@property (nonatomic, readonly, copy) NSIndexSet *indexes;
-@end
+@implementation MUKArrayDeltaMatch
 
-@implementation MUKArrayDeltaIndexedArray
-
-- (instancetype)initWithArray:(NSArray *)array indexes:(NSIndexSet *)indexes {
-    self = [super init];
-    if (self) {
-        _array = [array copy];
-        _indexes = [indexes copy];
-    }
-    
-    return self;
-}
-
-- (instancetype)initWithArray:(NSArray *)array {
-    return [self initWithArray:array indexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, array.count)]];
-}
-
-- (instancetype)initWithArray:(NSArray *)array excludingIndexes:(NSIndexSet *)excludedIndexes
-{
-    NSMutableIndexSet *indexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, array.count)];
-    [indexes removeIndexes:excludedIndexes];
-    return [self initWithArray:array indexes:indexes];
-}
-
-@end
-
-#pragma mark -
-
-@implementation MUKArrayDeltaMovement
-
-- (instancetype)initWithSourceIndex:(NSUInteger)sourceIndex destinationIndex:(NSUInteger)destinationIndex
+- (instancetype)initWithType:(MUKArrayDeltaMatchType)type sourceIndex:(NSUInteger)sourceIndex destinationIndex:(NSUInteger)destinationIndex
 {
     self = [super init];
     if (self) {
+        _type = type;
         _sourceIndex = sourceIndex;
         _destinationIndex = destinationIndex;
     }
@@ -45,12 +14,12 @@
     return self;
 }
 
-- (BOOL)isEqualToArrayDeltaMovement:(MUKArrayDeltaMovement *)movement {
-    return self.sourceIndex == movement.sourceIndex && self.destinationIndex == movement.destinationIndex;
+- (BOOL)isEqualToArrayDeltaMatch:(MUKArrayDeltaMatch *)match {
+    return self.type == match.type && self.sourceIndex == match.sourceIndex && self.destinationIndex == match.destinationIndex;
 }
 
-- (instancetype)inverseMovement {
-    return [[[self class] alloc] initWithSourceIndex:self.destinationIndex destinationIndex:self.sourceIndex];
+- (instancetype)inverse {
+    return [[[self class] alloc] initWithType:self.type sourceIndex:self.destinationIndex destinationIndex:self.sourceIndex];
 }
 
 #pragma mark Overrides
@@ -61,18 +30,37 @@
     }
     
     if ([object isKindOfClass:[self class]]) {
-        return [self isEqualToArrayDeltaMovement:object];
+        return [self isEqualToArrayDeltaMatch:object];
     }
     
     return NO;
 }
 
 - (NSUInteger)hash {
-    return 67829043 ^ self.sourceIndex ^ self.destinationIndex;
+    return 67829043 ^ self.type ^ self.sourceIndex ^ self.destinationIndex;
 }
 
 - (NSString *)description {
-    return [[super description] stringByAppendingFormat:@" (%lu -> %lu)", (unsigned long)self.sourceIndex, (unsigned long)self.destinationIndex];
+    NSString *typeDescription;
+    switch (self.type) {
+        case MUKArrayDeltaMatchTypeNone:
+            typeDescription = @"No match";
+            break;
+            
+        case MUKArrayDeltaMatchTypeChange:
+            typeDescription = @"Change";
+            break;
+            
+        case MUKArrayDeltaMatchTypeEqual:
+            typeDescription = @"Equality";
+            break;
+            
+        default:
+            typeDescription = nil;
+            break;
+    }
+    
+    return [[super description] stringByAppendingFormat:@" %@ between %lu and %lu", typeDescription, (unsigned long)self.sourceIndex, (unsigned long)self.destinationIndex];
 }
 
 @end
@@ -95,41 +83,118 @@
             usesDefaultMatchTest = YES;
         }
         
-        // Movements
-        {
-            MUKArrayDeltaIndexedArray *const source = [[MUKArrayDeltaIndexedArray alloc] initWithArray:sourceArray];
-            MUKArrayDeltaIndexedArray *const destination = [[MUKArrayDeltaIndexedArray alloc] initWithArray:destinationArray];
-            _movements = [[self class] movementsFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
-        }
+        NSMutableIndexSet *const availableDestinationIndexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, destinationArray.count)];
+        NSMutableArray *allMatches = [NSMutableArray array];
+        NSMutableSet *changeMatches = [NSMutableSet set];
+        NSMutableSet *equalMatches = [NSMutableSet set];
+        NSMutableIndexSet *deletedIndexes = [NSMutableIndexSet indexSet];
         
-        // Inserted indexes
+        [sourceArray enumerateObjectsUsingBlock:^(id sourceObject, NSUInteger sourceIndex, BOOL *stop)
         {
-            MUKArrayDeltaIndexedArray *const source = [[MUKArrayDeltaIndexedArray alloc] initWithArray:sourceArray excludingIndexes:[[self class] sourceIndexesFromMovements:_movements]];
-            MUKArrayDeltaIndexedArray *const destination = [[MUKArrayDeltaIndexedArray alloc] initWithArray:destinationArray excludingIndexes:[[self class] destinationIndexesFromMovements:_movements]];
-            _insertedIndexes = [[self class] insertedIndexesFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
-        }
+            __block MUKArrayDeltaMatch *foundMatch = nil;
+            
+            [destinationArray enumerateObjectsAtIndexes:availableDestinationIndexes options:0 usingBlock:^(id destinationObject, NSUInteger destinationIndex, BOOL *stop)
+            {
+                MUKArrayDeltaMatchType const matchType = matchTest(sourceObject, destinationObject);
+                
+                switch (matchType) {
+                    case MUKArrayDeltaMatchTypeChange:
+                    case MUKArrayDeltaMatchTypeEqual:
+                    {
+                        foundMatch = [[MUKArrayDeltaMatch alloc] initWithType:matchType sourceIndex:sourceIndex destinationIndex:destinationIndex];
+                        *stop = YES;
+                        break;
+                    }
+  
+                    case MUKArrayDeltaMatchTypeNone:
+                    default:
+                        break;
+                } // switch
+            }]; // destinationArray enumerateObjectsUsingBlock:
+            
+            if (foundMatch && foundMatch.type != MUKArrayDeltaMatchTypeNone) {
+                // Mark as used
+                [availableDestinationIndexes removeIndex:foundMatch.destinationIndex];
+                
+                switch (foundMatch.type) {
+                    case MUKArrayDeltaMatchTypeChange:
+                        [changeMatches addObject:foundMatch];
+                        [allMatches addObject:foundMatch];
+                        break;
+                        
+                    case MUKArrayDeltaMatchTypeEqual:
+                        [equalMatches addObject:foundMatch];
+                        [allMatches addObject:foundMatch];
+                        break;
+                        
+                    default:
+                        break;
+                }
+            }
+            else {
+                [deletedIndexes addIndex:sourceIndex];
+            }
+        }]; // sourceArray enumerateObjectsUsingBlock:
         
-        // Deleted indexes
-        {
-            MUKArrayDeltaIndexedArray *const source = [[MUKArrayDeltaIndexedArray alloc] initWithArray:sourceArray excludingIndexes:[[self class] sourceIndexesFromMovements:_movements]];
+        _equalMatches = [equalMatches copy];
+        _changes = [changeMatches copy];
+        _deletedIndexes = [deletedIndexes copy];
+        
+        // Every index without a match from source array is an inserted index
+        _insertedIndexes = [availableDestinationIndexes copy];
+        [availableDestinationIndexes removeAllIndexes];
 
-            NSMutableIndexSet *const indexSet = [[[self class] destinationIndexesFromMovements:_movements] mutableCopy];
-            [indexSet addIndexes:_insertedIndexes];
-            MUKArrayDeltaIndexedArray *const destination = [[MUKArrayDeltaIndexedArray alloc] initWithArray:destinationArray excludingIndexes:indexSet];
-            
-            _deletedIndexes = [[self class] deletedIndexesFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
-        }
+        // Find movements inside matches
+        NSMutableSet *const movements = [NSMutableSet set];
         
-        // Clean movements
-        _movements = [[self class] movementsByCleaningMovements:_movements fromInsertedIndexes:_insertedIndexes deletedIndexes:_deletedIndexes];
-        
-        // Changed indexes (default match test can't spot changes)
-        if (!usesDefaultMatchTest) {
-            MUKArrayDeltaIndexedArray *const source = [[MUKArrayDeltaIndexedArray alloc] initWithArray:sourceArray excludingIndexes:_deletedIndexes];
-            MUKArrayDeltaIndexedArray *const destination = [[MUKArrayDeltaIndexedArray alloc] initWithArray:destinationArray excludingIndexes:_insertedIndexes];
+        [allMatches enumerateObjectsUsingBlock:^(MUKArrayDeltaMatch *match, NSUInteger idx, BOOL *stop)
+        {
+            // First of all test simple case: same indexes means it isn't a movement
+            if (match.sourceIndex == match.destinationIndex) {
+                return;
+            }
+
+            // Then evaluate destination index to take into account insertions,
+            // deletions and overtakes
+            NSUInteger const insertionsBefore = [_insertedIndexes countOfIndexesInRange:NSMakeRange(0, match.destinationIndex)];
+            NSUInteger const deletionsBefore = [_deletedIndexes countOfIndexesInRange:NSMakeRange(0, match.sourceIndex)];
             
-            _changedIndexes = [[self class] changedIndexesFromSourceArray:source toDestinationArray:destination matchTest:matchTest];
-        }
+            NSInteger offset = insertionsBefore - deletionsBefore;
+            for (MUKArrayDeltaMatch *movement in movements) {
+                if (![movement isEqualToArrayDeltaMatch:match] &&
+                    ![movement isEqualToArrayDeltaMatch:[match inverse]])
+                {
+                    if (movement.sourceIndex > match.sourceIndex &&
+                        movement.destinationIndex < match.destinationIndex)
+                    {
+                        // A following item is now before
+                        offset++;
+                    }
+                    else if (movement.sourceIndex < match.sourceIndex &&
+                             movement.destinationIndex > match.destinationIndex)
+                    {
+                        // A preceding item is now after
+                        offset--;
+                    }
+                } // if
+            } // for
+            
+            // Calculate temporary destination index
+            NSUInteger const intermediateDestinationIndex = match.sourceIndex + offset;
+            
+            if (match.destinationIndex != intermediateDestinationIndex) {
+                // Movement seems to matter
+                
+                // Check inverse movement
+                MUKArrayDeltaMatch *const inverseMovement = [[MUKArrayDeltaMatch alloc] initWithType:match.type sourceIndex:match.destinationIndex - offset destinationIndex:intermediateDestinationIndex];
+                
+                if (![movements containsObject:inverseMovement]) {
+                    [movements addObject:match];
+                }
+            }
+        }]; // allMatches enumerateObjectsUsingBlock:
+        
+        _movements = [movements copy];
     }
 
     return self;
@@ -140,10 +205,11 @@
     BOOL const sameDestinationArray = (!self.destinationArray && !arrayDelta.destinationArray) || [self.destinationArray isEqualToArray:arrayDelta.destinationArray];
     BOOL const sameInsertedIndexes = (!self.insertedIndexes && !arrayDelta.insertedIndexes) || [self.insertedIndexes isEqualToIndexSet:arrayDelta.insertedIndexes];
     BOOL const sameDeletedIndexes = (!self.deletedIndexes && !arrayDelta.deletedIndexes) || [self.deletedIndexes isEqualToIndexSet:arrayDelta.deletedIndexes];
-    BOOL const sameChangedIndexes = (!self.changedIndexes && !arrayDelta.changedIndexes) || [self.changedIndexes isEqualToIndexSet:arrayDelta.changedIndexes];
-    BOOL const sameMovements = (!self.movements && !arrayDelta.movements) || [self.movements isEqualToArray:arrayDelta.movements];
+    BOOL const sameEqualMatches = (!self.equalMatches && !arrayDelta.equalMatches) || [self.equalMatches isEqualToSet:arrayDelta.equalMatches];
+    BOOL const sameChanges = (!self.changes && !arrayDelta.changes) || [self.changes isEqualToSet:arrayDelta.changes];
+    BOOL const sameMovements = (!self.movements && !arrayDelta.movements) || [self.movements isEqualToSet:arrayDelta.movements];
     
-    return sameSourceArray && sameDestinationArray && sameInsertedIndexes && sameDeletedIndexes && sameChangedIndexes && sameMovements;
+    return sameSourceArray && sameDestinationArray && sameInsertedIndexes && sameDeletedIndexes && sameEqualMatches && sameChanges && sameMovements;
 }
 
 #pragma mark Overrides
@@ -161,7 +227,7 @@
 }
 
 - (NSUInteger)hash {
-    return 984236 ^ [self.sourceArray hash] ^ [self.destinationArray hash] ^ [self.insertedIndexes hash] ^ [self.deletedIndexes hash] ^ [self.changedIndexes hash] ^ [self.movements hash];
+    return 984236 ^ [self.sourceArray hash] ^ [self.destinationArray hash] ^ [self.insertedIndexes hash] ^ [self.deletedIndexes hash] ^ [self.equalMatches hash] ^ [self.changes hash] ^ [self.movements hash];
 }
 
 #pragma mark Private
@@ -174,194 +240,6 @@
         
         return MUKArrayDeltaMatchTypeNone;
     };
-}
-
-+ (NSIndexSet *)insertedIndexesFromSourceArray:(MUKArrayDeltaIndexedArray *)source toDestinationArray:(MUKArrayDeltaIndexedArray *)destination matchTest:(MUKArrayDeltaMatchTest)matchTest
-{
-    return [destination.array indexesOfObjectsAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
-    {
-        NSUInteger const srcIdx = [source.array indexOfObjectAtIndexes:source.indexes options:0 passingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
-        {
-            MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
-            
-            if (matchType != MUKArrayDeltaMatchTypeNone) {
-                // Complete or partial match
-                *stop = YES;
-                return YES;
-            }
-            
-            return NO;
-        }]; // indexOfObjectPassingTest:
-        
-        if (srcIdx == NSNotFound) {
-            // No matching source object means it's a new object
-            return YES;
-        }
-        
-        return NO;
-    }]; // indexesOfObjectsPassingTest:
-}
-
-+ (NSIndexSet *)deletedIndexesFromSourceArray:(MUKArrayDeltaIndexedArray *)source toDestinationArray:(MUKArrayDeltaIndexedArray *)destination matchTest:(MUKArrayDeltaMatchTest)matchTest
-{
-    return [source.array indexesOfObjectsAtIndexes:source.indexes options:0 passingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
-    {
-        NSUInteger const dstIdx = [destination.array indexOfObjectAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
-        {
-            MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
-            
-            if (matchType != MUKArrayDeltaMatchTypeNone) {
-                // Complete or partial match
-                *stop = YES;
-                return YES;
-            }
-            
-            return NO;
-        }]; // indexOfObjectPassingTest:
-        
-        if (dstIdx == NSNotFound) {
-            // No matching destination object means it's a deleted object
-            return YES;
-        }
-        
-        return NO;
-    }]; // indexesOfObjectsPassingTest:
-}
-
-+ (NSIndexSet *)changedIndexesFromSourceArray:(MUKArrayDeltaIndexedArray *)source toDestinationArray:(MUKArrayDeltaIndexedArray *)destination matchTest:(MUKArrayDeltaMatchTest)matchTest
-{
-    return [source.array indexesOfObjectsAtIndexes:source.indexes options:0 passingTest:^BOOL(id srcObj, NSUInteger srcIdx, BOOL *stop)
-    {
-        NSUInteger const dstIdx = [destination.array indexOfObjectAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
-        {
-            MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
-            
-            if (matchType == MUKArrayDeltaMatchTypeChange) {
-                // Partial match
-                *stop = YES;
-                return YES;
-            }
-            
-            return NO;
-        }]; // indexOfObjectPassingTest:
-        
-        if (dstIdx != NSNotFound) {
-            return YES;
-        }
-        
-        return NO;
-    }]; // indexesOfObjectsPassingTest:
-}
-
-+ (NSArray *)movementsFromSourceArray:(MUKArrayDeltaIndexedArray *)source toDestinationArray:(MUKArrayDeltaIndexedArray *)destination matchTest:(MUKArrayDeltaMatchTest)matchTest
-{
-    NSMutableArray *const movements = [NSMutableArray array];
-    NSMutableIndexSet *const consumedDestinationIndexes = [NSMutableIndexSet indexSet];
-    
-    NSUInteger const (^normalizeDestinationIndex)(NSUInteger) = ^(NSUInteger idx) {
-        NSUInteger normalizedIndex = idx;
-        
-        for (MUKArrayDeltaMovement *const movement in movements) {
-            if (movement.sourceIndex < idx && movement.destinationIndex > idx) {
-                normalizedIndex++;
-            }
-            else if (movement.sourceIndex > idx && movement.destinationIndex < idx)
-            {
-                normalizedIndex--;
-            }
-        } // for
-        
-        return normalizedIndex;
-    };
-    
-    [source.array enumerateObjectsAtIndexes:source.indexes options:0 usingBlock:^(id srcObj, NSUInteger srcIdx, BOOL *stop)
-    {
-        NSUInteger const dstIdx = [destination.array indexOfObjectAtIndexes:destination.indexes options:0 passingTest:^BOOL(id dstObj, NSUInteger dstIdx, BOOL *stop)
-        {
-            if ([consumedDestinationIndexes containsIndex:dstIdx]) {
-                // Already visited
-                return NO;
-            }
-            
-            if (srcIdx == dstIdx) {
-                // Not a movement
-                return NO;
-            }
-            
-            // Calculate temporary destination index after these movements
-            NSUInteger const normalizedDestinationIndex = normalizeDestinationIndex(dstIdx);
-            if (srcIdx == normalizedDestinationIndex) {
-                // Not a movement
-                return NO;
-            }
-            
-            MUKArrayDeltaMatchType const matchType = matchTest(srcObj, dstObj);
-            if (matchType != MUKArrayDeltaMatchTypeNone) {
-                *stop = YES;
-                return YES;
-            }
-            
-            return NO;
-        }]; // indexOfObjectPassingTest:
-        
-        if (dstIdx != NSNotFound) {
-            MUKArrayDeltaMovement *const movement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:srcIdx destinationIndex:dstIdx];
-            if (![movements containsObject:[movement inverseMovement]]) {
-                [movements addObject:movement];
-                [consumedDestinationIndexes addIndex:dstIdx];
-            }
-        }
-    }]; // enumerateObjectsUsingBlock:
-    
-    return [movements copy];
-}
-
-+ (NSArray *)movementsByCleaningMovements:(NSArray *)originalMovements fromInsertedIndexes:(NSIndexSet *)insertedIndexes deletedIndexes:(NSIndexSet *)deletedIndexes
-{
-    NSMutableArray *const movements = [NSMutableArray arrayWithCapacity:originalMovements.count];
-    NSMutableArray *const normalizedMovements = [NSMutableArray arrayWithCapacity:originalMovements.count];
-    
-    [originalMovements enumerateObjectsUsingBlock:^(MUKArrayDeltaMovement *movement, NSUInteger idx, BOOL *stop)
-    {
-        NSInteger normalizedSourceIndex = movement.sourceIndex;
-        NSInteger normalizedDestinationIndex = movement.destinationIndex;
-        
-        // Check modifications
-        normalizedSourceIndex -= [deletedIndexes countOfIndexesInRange:NSMakeRange(0, movement.sourceIndex + 1)];
-        normalizedDestinationIndex -= [insertedIndexes countOfIndexesInRange:NSMakeRange(0, movement.destinationIndex + 1)];
-  
-        if (normalizedSourceIndex != normalizedDestinationIndex) {
-            MUKArrayDeltaMovement *const normalizedMovement = [[MUKArrayDeltaMovement alloc] initWithSourceIndex:normalizedSourceIndex destinationIndex:normalizedDestinationIndex];
-            
-            if (![normalizedMovements containsObject:[normalizedMovement inverseMovement]])
-            {
-                [movements addObject:movement];
-                [normalizedMovements addObject:normalizedMovement];
-            }
-        }
-    }]; // enumerateObjectsUsingBlock:
-    
-    return [movements copy];
-}
-
-+ (NSIndexSet *)sourceIndexesFromMovements:(NSArray *)movements {
-    NSMutableIndexSet *const indexSet = [NSMutableIndexSet indexSet];
-    
-    for (MUKArrayDeltaMovement *movement in movements) {
-        [indexSet addIndex:movement.sourceIndex];
-    } // for
-    
-    return [indexSet copy];
-}
-
-+ (NSIndexSet *)destinationIndexesFromMovements:(NSArray *)movements {
-    NSMutableIndexSet *const indexSet = [NSMutableIndexSet indexSet];
-    
-    for (MUKArrayDeltaMovement *movement in movements) {
-        [indexSet addIndex:movement.destinationIndex];
-    } // for
-    
-    return [indexSet copy];
 }
 
 @end

@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
   s.name             = "MUKArrayDelta"
-  s.version          = "1.0.0"
+  s.version          = "1.1.0"
   s.summary          = "Spot differences between two arrays"
-  s.description      = "You feed two arrays and you will get inserted indexes, deleted indexes, changed indexes and movements"
+  s.description      = "You feed two arrays and you will get inserted indexes, deleted indexes, changes and movements"
   s.homepage         = "https://github.com/muccy/MUKArrayDelta"
   s.license          = 'MIT'
   s.author           = { "Marco Muccinelli" => "muccymac@gmail.com" }

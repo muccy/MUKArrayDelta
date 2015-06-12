@@ -84,6 +84,7 @@
         }
         
         NSMutableIndexSet *const availableDestinationIndexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, destinationArray.count)];
+        NSMutableArray *allMatches = [NSMutableArray array];
         NSMutableSet *changeMatches = [NSMutableSet set];
         NSMutableSet *equalMatches = [NSMutableSet set];
         NSMutableIndexSet *deletedIndexes = [NSMutableIndexSet indexSet];
@@ -118,10 +119,12 @@
                 switch (foundMatch.type) {
                     case MUKArrayDeltaMatchTypeChange:
                         [changeMatches addObject:foundMatch];
+                        [allMatches addObject:foundMatch];
                         break;
                         
                     case MUKArrayDeltaMatchTypeEqual:
                         [equalMatches addObject:foundMatch];
+                        [allMatches addObject:foundMatch];
                         break;
                         
                     default:
@@ -140,55 +143,54 @@
         // Every index without a match from source array is an inserted index
         _insertedIndexes = [availableDestinationIndexes copy];
         [availableDestinationIndexes removeAllIndexes];
-        
+
         // Find movements inside matches
         NSMutableSet *const movements = [NSMutableSet set];
-        NSMutableSet *const allMatches = [NSMutableSet set];
-        [allMatches unionSet:_equalMatches];
-        [allMatches unionSet:_changes];
         
-        [allMatches enumerateObjectsUsingBlock:^(MUKArrayDeltaMatch *match, BOOL *stop)
+        [allMatches enumerateObjectsUsingBlock:^(MUKArrayDeltaMatch *match, NSUInteger idx, BOOL *stop)
         {
             // First of all test simple case: same indexes means it isn't a movement
             if (match.sourceIndex == match.destinationIndex) {
                 return;
             }
-            
-            // Check for counter movement
-            if ([movements containsObject:[match inverse]]) {
-                return;
-            }
-            
+
             // Then evaluate destination index to take into account insertions,
             // deletions and overtakes
             NSUInteger const insertionsBefore = [_insertedIndexes countOfIndexesInRange:NSMakeRange(0, match.destinationIndex)];
             NSUInteger const deletionsBefore = [_deletedIndexes countOfIndexesInRange:NSMakeRange(0, match.sourceIndex)];
             
-            NSInteger offset = 0;
-            for (MUKArrayDeltaMatch *anotherMatch in allMatches) {
-                if (anotherMatch.sourceIndex != anotherMatch.destinationIndex &&
-                    ![anotherMatch isEqualToArrayDeltaMatch:match])
+            NSInteger offset = insertionsBefore - deletionsBefore;
+            for (MUKArrayDeltaMatch *movement in movements) {
+                if (![movement isEqualToArrayDeltaMatch:match] &&
+                    ![movement isEqualToArrayDeltaMatch:[match inverse]])
                 {
-                    if (anotherMatch.sourceIndex > match.sourceIndex &&
-                        anotherMatch.destinationIndex < match.destinationIndex)
+                    if (movement.sourceIndex > match.sourceIndex &&
+                        movement.destinationIndex < match.destinationIndex)
                     {
                         // A following item is now before
-                        offset--;
+                        offset++;
                     }
-                    else if (anotherMatch.sourceIndex < match.sourceIndex &&
-                             anotherMatch.destinationIndex > match.destinationIndex)
+                    else if (movement.sourceIndex < match.sourceIndex &&
+                             movement.destinationIndex > match.destinationIndex)
                     {
                         // A preceding item is now after
-                        offset++;
+                        offset--;
                     }
                 } // if
             } // for
             
-            // Calculate temporary destination index after these movements
-            NSUInteger const normalizedDestinationIndex = match.destinationIndex - insertionsBefore + deletionsBefore + offset;
+            // Calculate temporary destination index
+            NSUInteger const intermediateDestinationIndex = match.sourceIndex + offset;
             
-            if (match.sourceIndex != normalizedDestinationIndex) {
-                [movements addObject:match];
+            if (match.destinationIndex != intermediateDestinationIndex) {
+                // Movement seems to matter
+                
+                // Check inverse movement
+                MUKArrayDeltaMatch *const inverseMovement = [[MUKArrayDeltaMatch alloc] initWithType:match.type sourceIndex:match.destinationIndex - offset destinationIndex:intermediateDestinationIndex];
+                
+                if (![movements containsObject:inverseMovement]) {
+                    [movements addObject:match];
+                }
             }
         }]; // allMatches enumerateObjectsUsingBlock:
         

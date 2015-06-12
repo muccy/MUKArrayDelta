@@ -153,34 +153,10 @@
             if (match.sourceIndex == match.destinationIndex) {
                 return;
             }
-
-            // Then evaluate destination index to take into account insertions,
-            // deletions and overtakes
-            NSUInteger const insertionsBefore = [_insertedIndexes countOfIndexesInRange:NSMakeRange(0, match.destinationIndex)];
-            NSUInteger const deletionsBefore = [_deletedIndexes countOfIndexesInRange:NSMakeRange(0, match.sourceIndex)];
-            
-            NSInteger offset = insertionsBefore - deletionsBefore;
-            for (MUKArrayDeltaMatch *movement in movements) {
-                if (![movement isEqualToArrayDeltaMatch:match] &&
-                    ![movement isEqualToArrayDeltaMatch:[match inverse]])
-                {
-                    if (movement.sourceIndex > match.sourceIndex &&
-                        movement.destinationIndex < match.destinationIndex)
-                    {
-                        // A following item is now before
-                        offset++;
-                    }
-                    else if (movement.sourceIndex < match.sourceIndex &&
-                             movement.destinationIndex > match.destinationIndex)
-                    {
-                        // A preceding item is now after
-                        offset--;
-                    }
-                } // if
-            } // for
             
             // Calculate temporary destination index
-            NSUInteger const intermediateDestinationIndex = match.sourceIndex + offset;
+            NSInteger offset;
+            NSUInteger const intermediateDestinationIndex = [[self class] intermediateDestinationIndexForMovement:match withInsertedIndexes:_insertedIndexes deletedIndexes:_deletedIndexes movements:movements calculatedOffset:&offset];
             
             if (match.destinationIndex != intermediateDestinationIndex) {
                 // Movement seems to matter
@@ -212,6 +188,10 @@
     return sameSourceArray && sameDestinationArray && sameInsertedIndexes && sameDeletedIndexes && sameEqualMatches && sameChanges && sameMovements;
 }
 
+- (NSUInteger)intermediateDestinationIndexForMovement:(MUKArrayDeltaMatch *)movement {
+    return [[self class] intermediateDestinationIndexForMovement:movement withInsertedIndexes:self.insertedIndexes deletedIndexes:self.deletedIndexes movements:self.movements calculatedOffset:NULL];
+}
+
 #pragma mark Overrides
 
 - (BOOL)isEqual:(id)object {
@@ -240,6 +220,35 @@
         
         return MUKArrayDeltaMatchTypeNone;
     };
+}
+
++ (NSUInteger)intermediateDestinationIndexForMovement:(MUKArrayDeltaMatch *)match withInsertedIndexes:(NSIndexSet *)insertedIndexes deletedIndexes:(NSIndexSet *)deletedIndexes movements:(NSSet *)movements calculatedOffset:(NSInteger *)calculatedOffset
+{
+    NSUInteger const insertionsBefore = [insertedIndexes countOfIndexesInRange:NSMakeRange(0, match.destinationIndex)];
+    NSUInteger const deletionsBefore = [deletedIndexes countOfIndexesInRange:NSMakeRange(0, match.sourceIndex)];
+    
+    NSInteger offset = insertionsBefore - deletionsBefore;
+    for (MUKArrayDeltaMatch *movement in movements) {
+        if (![movement isEqualToArrayDeltaMatch:match] &&
+            ![movement isEqualToArrayDeltaMatch:[match inverse]])
+        {
+            if (movement.sourceIndex < match.sourceIndex &&
+                     movement.destinationIndex > match.destinationIndex)
+            {
+                // A preceding item is now after
+                offset--;
+            }
+            
+            // Movements with movement.sourceIndex > match.sourceIndex are discarded
+            // becuase they are considered future movements
+        } // if
+    } // for
+    
+    if (calculatedOffset != NULL) {
+        *calculatedOffset = offset;
+    }
+    
+    return match.sourceIndex + offset;
 }
 
 @end

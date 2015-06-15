@@ -139,6 +139,42 @@
     XCTAssertEqualObjects(delta.movements, movements);
 }
 
+- (void)testInverseMovements {
+    NSArray *const a = @[ @"a", @"b", @"c" ];
+    NSArray *const b = @[ @"c", @"b", @"a" ];
+    
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 2), EqualMatch(1, 1), EqualMatch(2, 0), nil];
+    
+    // 0 -> 2, 2 -> 0
+    NSSet *const movements = [NSSet setWithObjects:EqualMatch(0, 2), EqualMatch(2, 0), nil];
+    
+    XCTAssertEqual(delta.insertedIndexes.count, 0);
+    XCTAssertEqual(delta.deletedIndexes.count, 0);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqual(delta.changes.count, 0);
+    XCTAssertEqualObjects(delta.movements, movements);
+}
+
+- (void)testInverseMovements2 {
+    NSArray *const a = @[ @"a", @"b", @"c" ];
+    NSArray *const b = @[ @"b", @"a", @"c" ];
+    
+    MUKArrayDelta *const delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    
+    NSSet *const equalMatches = [NSSet setWithObjects:EqualMatch(0, 1), EqualMatch(1, 0), EqualMatch(2, 2), nil];
+    
+    // 0 -> 1
+    NSSet *const movements = [NSSet setWithObjects:EqualMatch(0, 1), nil];
+    
+    XCTAssertEqual(delta.insertedIndexes.count, 0);
+    XCTAssertEqual(delta.deletedIndexes.count, 0);
+    XCTAssertEqualObjects(delta.equalMatches, equalMatches);
+    XCTAssertEqual(delta.changes.count, 0);
+    XCTAssertEqualObjects(delta.movements, movements);
+}
+
 - (void)testComboInsertionDeletion {
     NSArray *const a = @[ @"a" ];
     NSArray *const b = @[ @"b", @"c" ];
@@ -336,7 +372,7 @@
     b = @[ @"b", @"a", @"d", @"c", @"e" ];
     delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
     XCTAssertEqual([delta intermediateDestinationIndexForMovement:EqualMatch(0, 1)], 0);
-    XCTAssertEqual([delta intermediateDestinationIndexForMovement:EqualMatch(1, 0)], 1); // inverse movements ignored
+    XCTAssertEqual([delta intermediateDestinationIndexForMovement:EqualMatch(1, 0)], 0);
     XCTAssertEqual([delta intermediateDestinationIndexForMovement:EqualMatch(2, 3)], 3);
 }
 

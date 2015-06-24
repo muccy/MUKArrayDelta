@@ -376,6 +376,30 @@
     XCTAssertEqual([delta intermediateDestinationIndexForMovement:EqualMatch(2, 3)], 3);
 }
 
+- (void)testMassInsertion {
+    NSArray *a = nil;
+    NSArray *b = @[ @"a", @"b" ];
+    MUKArrayDelta *delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    
+    XCTAssertEqualObjects(delta.insertedIndexes, [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, b.count)]);
+    XCTAssertEqual(delta.deletedIndexes.count, 0);
+    XCTAssertEqual(delta.equalMatches.count, 0);
+    XCTAssertEqual(delta.changes.count, 0);
+    XCTAssertEqual(delta.movements.count, 0);
+}
+
+- (void)testMassDeletion {
+    NSArray *a = @[ @"a", @"b" ];
+    NSArray *b = nil;
+    MUKArrayDelta *delta = [[MUKArrayDelta alloc] initWithSourceArray:a destinationArray:b matchTest:nil];
+    
+    XCTAssertEqual(delta.insertedIndexes.count, 0);
+    XCTAssertEqualObjects(delta.deletedIndexes, [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, a.count)]);
+    XCTAssertEqual(delta.equalMatches.count, 0);
+    XCTAssertEqual(delta.changes.count, 0);
+    XCTAssertEqual(delta.movements.count, 0);
+}
+
 #pragma mark - Private
 
 + (MUKArrayDeltaMatchTest)stringPrefixMatchTest {

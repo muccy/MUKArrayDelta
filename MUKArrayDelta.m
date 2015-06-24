@@ -73,10 +73,8 @@
         _destinationArray = [destinationArray copy];
         
         // Ensure a match test
-        BOOL usesDefaultMatchTest = NO;
         if (!matchTest) {
             matchTest = [[self class] defaultMatchTest];
-            usesDefaultMatchTest = YES;
         }
         
         NSMutableIndexSet *const availableDestinationIndexes = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, destinationArray.count)];

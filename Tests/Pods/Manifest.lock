@@ -1,0 +1,14 @@
+PODS:
+  - MUKArrayDelta (1.0.0)
+
+DEPENDENCIES:
+  - MUKArrayDelta (from `../`)
+
+EXTERNAL SOURCES:
+  MUKArrayDelta:
+    :path: ../
+
+SPEC CHECKSUMS:
+  MUKArrayDelta: f1f5e43da4fe6fd2032f04bc3f49498ef4fc2f9c
+
+COCOAPODS: 0.37.2

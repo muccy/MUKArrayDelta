@@ -1,0 +1,432 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0470AE9CF0C9DBD42A57293C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20056E8F4B527EBAE26E513A /* Foundation.framework */; };
+		4E37DEBDF14FA52D333DEFA8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20056E8F4B527EBAE26E513A /* Foundation.framework */; };
+		547ACC60A3F7121B21F70CF4 /* Pods-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AADC747633BF8914BAE39B5 /* Pods-dummy.m */; };
+		8C07BCDC45B9971C6177F87A /* Pods-MUKArrayDelta-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9A1E22F9C2EDF70DF998BE /* Pods-MUKArrayDelta-dummy.m */; };
+		C00419DABDA1C92FFA0B5A2B /* MUKArrayDelta.m in Sources */ = {isa = PBXBuildFile; fileRef = AFC45EB2C28B138277A229AB /* MUKArrayDelta.m */; settings = {COMPILER_FLAGS = "-Wdocumentation"; }; };
+		FAC3E9C3F23B54262BDC8109 /* MUKArrayDelta.h in Headers */ = {isa = PBXBuildFile; fileRef = DF1FE1956AFB0863FC896051 /* MUKArrayDelta.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8B0E146DEEE7F8B0F3D8FD64 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A0D43270D37D7324B5B0DDF8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B6C22FF4C1854826BCACC5E4;
+			remoteInfo = "Pods-MUKArrayDelta";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		20056E8F4B527EBAE26E513A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		3171B734FBBEC353DA2A97AF /* Pods-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-acknowledgements.plist"; sourceTree = "<group>"; };
+		33A2598785B44B847D6DE997 /* Pods-MUKArrayDelta.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MUKArrayDelta.xcconfig"; sourceTree = "<group>"; };
+		3604DB361FC0CEEC518BC827 /* Pods-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-acknowledgements.markdown"; sourceTree = "<group>"; };
+		3F99F8C71EB726A93A205DF4 /* Pods-MUKArrayDelta-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-MUKArrayDelta-prefix.pch"; sourceTree = "<group>"; };
+		52A654DE78953B6743214A93 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Pods.release.xcconfig; sourceTree = "<group>"; };
+		72432F036D613AA3F161084E /* libPods-MUKArrayDelta.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MUKArrayDelta.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		72796F7BF17624AC053204AC /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AADC747633BF8914BAE39B5 /* Pods-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-dummy.m"; sourceTree = "<group>"; };
+		AFC45EB2C28B138277A229AB /* MUKArrayDelta.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = MUKArrayDelta.m; sourceTree = "<group>"; };
+		C08F18CB2C0BF5BD52898728 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Pods.debug.xcconfig; sourceTree = "<group>"; };
+		CFCBC6A8FFDE4EC96ED8883F /* Podfile */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		DD444F937A79B30C9EE679D1 /* Pods-MUKArrayDelta-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MUKArrayDelta-Private.xcconfig"; sourceTree = "<group>"; };
+		DE9A1E22F9C2EDF70DF998BE /* Pods-MUKArrayDelta-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MUKArrayDelta-dummy.m"; sourceTree = "<group>"; };
+		DF1FE1956AFB0863FC896051 /* MUKArrayDelta.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MUKArrayDelta.h; sourceTree = "<group>"; };
+		E2A4193032BD31ABC7C19BA9 /* Pods-environment.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-environment.h"; sourceTree = "<group>"; };
+		EFA336AADD5DB8372D188A48 /* Pods-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-resources.sh"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0086C58720AF7B179D3C9E5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E37DEBDF14FA52D333DEFA8 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BF33B78E4B22CDB70F3D7E6B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0470AE9CF0C9DBD42A57293C /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1BD152DC25C2924CFD049AAF /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				20056E8F4B527EBAE26E513A /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		27F380E939B768F3EE6D1CBC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1BD152DC25C2924CFD049AAF /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		29F9E41D05DC54A27F51FF50 = {
+			isa = PBXGroup;
+			children = (
+				CFCBC6A8FFDE4EC96ED8883F /* Podfile */,
+				A34D8B775B96DF94FC43801E /* Development Pods */,
+				27F380E939B768F3EE6D1CBC /* Frameworks */,
+				F7ACBB6B37EAA9CBEAE81010 /* Products */,
+				3532F9250F34467E5185086B /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		3532F9250F34467E5185086B /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				DF904142EDD2143074C7E9D7 /* Pods */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+		40AD4A00AFBCA49520262891 /* MUKArrayDelta */ = {
+			isa = PBXGroup;
+			children = (
+				DF1FE1956AFB0863FC896051 /* MUKArrayDelta.h */,
+				AFC45EB2C28B138277A229AB /* MUKArrayDelta.m */,
+				A63ECE16764407F8986341A1 /* Support Files */,
+			);
+			name = MUKArrayDelta;
+			path = ../..;
+			sourceTree = "<group>";
+		};
+		A34D8B775B96DF94FC43801E /* Development Pods */ = {
+			isa = PBXGroup;
+			children = (
+				40AD4A00AFBCA49520262891 /* MUKArrayDelta */,
+			);
+			name = "Development Pods";
+			sourceTree = "<group>";
+		};
+		A63ECE16764407F8986341A1 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				33A2598785B44B847D6DE997 /* Pods-MUKArrayDelta.xcconfig */,
+				DD444F937A79B30C9EE679D1 /* Pods-MUKArrayDelta-Private.xcconfig */,
+				DE9A1E22F9C2EDF70DF998BE /* Pods-MUKArrayDelta-dummy.m */,
+				3F99F8C71EB726A93A205DF4 /* Pods-MUKArrayDelta-prefix.pch */,
+			);
+			name = "Support Files";
+			path = "Tests/Pods/Target Support Files/Pods-MUKArrayDelta";
+			sourceTree = "<group>";
+		};
+		DF904142EDD2143074C7E9D7 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				3604DB361FC0CEEC518BC827 /* Pods-acknowledgements.markdown */,
+				3171B734FBBEC353DA2A97AF /* Pods-acknowledgements.plist */,
+				9AADC747633BF8914BAE39B5 /* Pods-dummy.m */,
+				E2A4193032BD31ABC7C19BA9 /* Pods-environment.h */,
+				EFA336AADD5DB8372D188A48 /* Pods-resources.sh */,
+				C08F18CB2C0BF5BD52898728 /* Pods.debug.xcconfig */,
+				52A654DE78953B6743214A93 /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			path = "Target Support Files/Pods";
+			sourceTree = "<group>";
+		};
+		F7ACBB6B37EAA9CBEAE81010 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				72796F7BF17624AC053204AC /* libPods.a */,
+				72432F036D613AA3F161084E /* libPods-MUKArrayDelta.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		E4F39037CDD980DB52C24E09 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAC3E9C3F23B54262BDC8109 /* MUKArrayDelta.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		052A6F2058C75AD094360534 /* Pods */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D3FF7162500F1BF26EFB73B1 /* Build configuration list for PBXNativeTarget "Pods" */;
+			buildPhases = (
+				694BA3E320C27B0588598A0B /* Sources */,
+				BF33B78E4B22CDB70F3D7E6B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6F15EB4D8B8E82DDED23DB5C /* PBXTargetDependency */,
+			);
+			name = Pods;
+			productName = Pods;
+			productReference = 72796F7BF17624AC053204AC /* libPods.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		B6C22FF4C1854826BCACC5E4 /* Pods-MUKArrayDelta */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E3D21486D5B0B3100A8A5E3B /* Build configuration list for PBXNativeTarget "Pods-MUKArrayDelta" */;
+			buildPhases = (
+				31BE0A7E2A2252EAC4025314 /* Sources */,
+				0086C58720AF7B179D3C9E5A /* Frameworks */,
+				E4F39037CDD980DB52C24E09 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Pods-MUKArrayDelta";
+			productName = "Pods-MUKArrayDelta";
+			productReference = 72432F036D613AA3F161084E /* libPods-MUKArrayDelta.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A0D43270D37D7324B5B0DDF8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0640;
+			};
+			buildConfigurationList = 3FEC44312B3C080AD095B72E /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 29F9E41D05DC54A27F51FF50;
+			productRefGroup = F7ACBB6B37EAA9CBEAE81010 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				052A6F2058C75AD094360534 /* Pods */,
+				B6C22FF4C1854826BCACC5E4 /* Pods-MUKArrayDelta */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		31BE0A7E2A2252EAC4025314 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C00419DABDA1C92FFA0B5A2B /* MUKArrayDelta.m in Sources */,
+				8C07BCDC45B9971C6177F87A /* Pods-MUKArrayDelta-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		694BA3E320C27B0588598A0B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				547ACC60A3F7121B21F70CF4 /* Pods-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6F15EB4D8B8E82DDED23DB5C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Pods-MUKArrayDelta";
+			target = B6C22FF4C1854826BCACC5E4 /* Pods-MUKArrayDelta */;
+			targetProxy = 8B0E146DEEE7F8B0F3D8FD64 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		24F9F7D13676F7DB270CC1EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C08F18CB2C0BF5BD52898728 /* Pods.debug.xcconfig */;
+			buildSettings = {
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		4562C0E27082B7329A72EFEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 52A654DE78953B6743214A93 /* Pods.release.xcconfig */;
+			buildSettings = {
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		7D8A63FD2F7DE61E722EB4B6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				ONLY_ACTIVE_ARCH = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Debug;
+		};
+		BFB8236DFB239FFA82961DEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DD444F937A79B30C9EE679D1 /* Pods-MUKArrayDelta-Private.xcconfig */;
+			buildSettings = {
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-MUKArrayDelta/Pods-MUKArrayDelta-prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		E1A0991731C55F8FEEEBB102 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "RELEASE=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SYMROOT = "${SRCROOT}/../build";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E71C3EB5A32472DB1FD8CB05 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DD444F937A79B30C9EE679D1 /* Pods-MUKArrayDelta-Private.xcconfig */;
+			buildSettings = {
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-MUKArrayDelta/Pods-MUKArrayDelta-prefix.pch";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3FEC44312B3C080AD095B72E /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7D8A63FD2F7DE61E722EB4B6 /* Debug */,
+				E1A0991731C55F8FEEEBB102 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D3FF7162500F1BF26EFB73B1 /* Build configuration list for PBXNativeTarget "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24F9F7D13676F7DB270CC1EB /* Debug */,
+				4562C0E27082B7329A72EFEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E3D21486D5B0B3100A8A5E3B /* Build configuration list for PBXNativeTarget "Pods-MUKArrayDelta" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BFB8236DFB239FFA82961DEA /* Debug */,
+				E71C3EB5A32472DB1FD8CB05 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A0D43270D37D7324B5B0DDF8 /* Project object */;
+}
